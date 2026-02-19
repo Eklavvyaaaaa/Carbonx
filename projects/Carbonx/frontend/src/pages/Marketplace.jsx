@@ -2,6 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '../context/WalletContext';
 import { useToast } from '../context/ToastContext';
 import { APP_IDS } from '../config';
+import {
+    mintCredits,
+    retireCredits,
+    buyCreditsWithCost,
+    getCurrentPrice,
+    getMarketplaceState,
+    getCredits,
+} from '../services/contracts';
+import { formatCredits, parseCredits, SCALING_FACTOR } from '../utils/formatting';
+import './Pages.css';
 import { getCredits, mintCredits, retireCredits } from '../services/contracts';
 import './DashboardMarketplace.css';
 
@@ -20,6 +30,8 @@ export default function Marketplace() {
     const { account } = useWallet();
     const toast = useToast();
     const [userBalance, setUserBalance] = useState(0);
+    const [currentPrice, setCurrentPrice] = useState(0);
+    const [buyAmount, setBuyAmount] = useState('');
     const [activeTab, setActiveTab] = useState('buy');
     const [mintAmount, setMintAmount] = useState('');
     const [retireAmount, setRetireAmount] = useState('');
@@ -31,6 +43,10 @@ export default function Marketplace() {
     const refresh = useCallback(async () => {
         if (!APP_IDS.CARBON_MARKETPLACE) return;
         try {
+            const state = await getMarketplaceState();
+            setStats(state);
+            const price = await getCurrentPrice();
+            setCurrentPrice(Number(price) || 0);
             if (account) {
                 const balance = await getCredits(account);
                 setUserBalance(Number(balance) || 0);
@@ -49,7 +65,11 @@ export default function Marketplace() {
         e.preventDefault();
         if (!account) return toast.warning('Connect wallet');
         setLoading(true);
+        setLoading(true);
         try {
+            const amountBase = parseCredits(mintAmount);
+            await mintCredits(account, Number(amountBase));
+            toast.success(`Minted ${mintAmount} credits!`);
             await mintCredits(account, Number(mintAmount));
             toast.success('Minted successfully!');
             setMintAmount('');
@@ -62,7 +82,11 @@ export default function Marketplace() {
         e.preventDefault();
         if (!account) return toast.warning('Connect wallet');
         setLoading(true);
+        setLoading(true);
         try {
+            const amountBase = parseCredits(retireAmount);
+            await retireCredits(account, Number(amountBase));
+            toast.success(`Retired ${retireAmount} credits!`);
             await retireCredits(account, Number(retireAmount));
             toast.success('Retired successfully!');
             setRetireAmount('');
@@ -71,6 +95,44 @@ export default function Marketplace() {
         setLoading(false);
     };
 
+
+    const handleBuy = async (e) => {
+        e.preventDefault();
+        if (!account) return toast.warning('Connect your wallet first');
+        if (!buyAmount || Number(buyAmount) <= 0) return toast.warning('Enter a valid amount');
+        setLoading(true);
+        try {
+            const amountBase = parseCredits(buyAmount);
+            // Calculate total cost using integer arithmetic to maintain precision
+            // totalCost = ceil(currentPrice * amountBase / SCALING_FACTOR)
+            // Using BigInt for absolute precision in microAlgo calculation
+            const amountBI = amountBase; // parseCredits returns BigInt
+            const priceBI = BigInt(Math.floor(currentPrice));
+            const factorBI = BigInt(SCALING_FACTOR);
+
+            // Integer ceiling formula: (a + b - 1) / b
+            const totalCost = (priceBI * amountBI + factorBI - 1n) / factorBI;
+
+            await buyCreditsWithCost(account, Number(amountBase), totalCost);
+            toast.success(`Bought ${buyAmount} credits!`);
+            setBuyAmount('');
+            await refresh();
+        } catch (e) {
+            console.error(e);
+            toast.error(e.message || 'Purchase failed');
+        }
+        setLoading(false);
+    };
+    const handleLookup = async (e) => {
+        e.preventDefault();
+        if (!lookupAddr) return toast.warning('Enter an address');
+        try {
+            const balance = await getCredits(lookupAddr);
+            setLookupResult({ address: lookupAddr, balance: Number(balance) || 0 });
+        } catch (e) {
+            toast.error('Lookup failed');
+        }
+    };
     const filteredListings = MARKET_LISTINGS.filter(item => {
         const matchesSearch = item.project.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -87,6 +149,86 @@ export default function Marketplace() {
 
     const totalMarketValue = MARKET_LISTINGS.reduce((sum, l) => sum + (l.price * l.available), 0);
 
+            {/* ─── Stats ─────────────────────────────────────── */}
+            <div className="stats-grid">
+                <div className="stat-card" style={{ '--accent': '#10b981' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981' }}>🌱</div>
+                    <div className="stat-label">Total Credits</div>
+                    <div className="stat-label">Total Credits</div>
+                    <div className="stat-value">{formatCredits(stats.total_credits)}</div>
+                </div>
+                <div className="stat-card" style={{ '--accent': '#06b6d4' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(6,182,212,0.15)', color: '#06b6d4' }}>🏷️</div>
+                    <div className="stat-label">Current Price</div>
+                    <div className="stat-value">{(currentPrice / 1_000_000).toFixed(2)} A</div>
+                </div>
+                <div className="stat-card" style={{ '--accent': '#ef4444' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>🔥</div>
+                    <div className="stat-label">Retired Credits</div>
+                    <div className="stat-value">{formatCredits(stats.retired_credits)}</div>
+                </div>
+                <div className="stat-card" style={{ '--accent': '#8b5cf6' }}>
+                    <div className="stat-icon" style={{ background: 'rgba(139,92,246,0.15)', color: '#8b5cf6' }}>💰</div>
+                    <div className="stat-label">Your Balance</div>
+                    <div className="stat-label">Your Balance</div>
+                    <div className="stat-value">{account ? formatCredits(userBalance) : '—'}</div>
+                    <div className="stat-sub">{account ? 'Connected' : 'Connect wallet to view'}</div>
+                </div>
+            </div>
+
+            {/* ─── Action Cards ──────────────────────────────── */}
+            <div className="form-grid">
+                <div className="glass-card">
+                    <h3 className="section-title">
+                        <span className="icon">💳</span>
+                        Buy Credits
+                    </h3>
+                    <p className="form-desc">Purchase credits. Price increases with demand.</p>
+                    <div className="price-tag">Current Price: {(currentPrice / 1_000_000).toFixed(6)} ALGO/Credit</div>
+                    <form onSubmit={handleBuy}>
+                        <div className="input-row">
+                            <div className="input-group">
+                                <label htmlFor="buy-amount">Amount</label>
+                                <input
+                                    id="buy-amount"
+                                    className="input"
+                                    type="number"
+                                    min="0.000001"
+                                    step="0.000001"
+                                    placeholder="Amount to buy"
+                                    value={buyAmount}
+                                    onChange={(e) => setBuyAmount(e.target.value)}
+                                    disabled={loading}
+                                />
+                            </div>
+                            <button className="btn btn-primary" type="submit" disabled={loading || !account}>
+                                {loading ? '⟳' : '💳'} Buy
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div className="glass-card">
+                    <h3 className="section-title">
+                        <span className="icon">🌱</span>
+                        Mint Credits
+                    </h3>
+                    <p className="form-desc">Create new carbon credits. Only the contract creator can mint.</p>
+                    <form onSubmit={handleMint}>
+                        <div className="input-row">
+                            <div className="input-group">
+                                <label htmlFor="mint-amount">Amount</label>
+                                <input
+                                    id="mint-amount"
+                                    className="input"
+                                    type="number"
+                                    min="0.000001"
+                                    step="0.000001"
+                                    placeholder="Enter amount to mint (e.g. 0.1)"
+                                    value={mintAmount}
+                                    onChange={(e) => setMintAmount(e.target.value)}
+                                    disabled={loading}
+                                />
     return (
         <div className="page-marketplace">
             {/* Header */}
@@ -155,6 +297,27 @@ export default function Marketplace() {
                                 </select>
                             </div>
 
+                <div className="glass-card">
+                    <h3 className="section-title">
+                        <span className="icon">🔥</span>
+                        Retire Credits
+                    </h3>
+                    <p className="form-desc">Permanently burn credits from your balance. Anyone with credits can retire them.</p>
+                    <form onSubmit={handleRetire}>
+                        <div className="input-row">
+                            <div className="input-group">
+                                <label htmlFor="retire-amount">Amount</label>
+                                <input
+                                    id="retire-amount"
+                                    className="input"
+                                    type="number"
+                                    min="0.000001"
+                                    step="0.000001"
+                                    placeholder="Enter amount to retire (e.g. 0.1)"
+                                    value={retireAmount}
+                                    onChange={(e) => setRetireAmount(e.target.value)}
+                                    disabled={loading}
+                                />
                             {/* Results count */}
                             <div className="market-results-info mb-4">
                                 <span className="text-sm text-muted">{filteredListings.length} credits found</span>

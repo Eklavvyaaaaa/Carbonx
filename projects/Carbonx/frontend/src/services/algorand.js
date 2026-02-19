@@ -3,7 +3,7 @@ import algosdk from 'algosdk';
 import { ALGORAND_NODE, ALGORAND_INDEXER } from '../config';
 import { signTransactions } from './wallet';
 
-const algodClient = new algosdk.Algodv2('', ALGORAND_NODE, '');
+export const algodClient = new algosdk.Algodv2('', ALGORAND_NODE, '');
 const indexerClient = new algosdk.Indexer('', ALGORAND_INDEXER, '');
 
 export function getAlgodClient() {
@@ -12,6 +12,17 @@ export function getAlgodClient() {
 
 export function getIndexerClient() {
     return indexerClient;
+}
+
+export async function getAssetBalance(accountAddr, assetId) {
+    try {
+        const response = await indexerClient.lookupAccountAssets(accountAddr).do();
+        const asset = response.assets.find(a => a['asset-id'] === assetId);
+        return asset ? asset.amount : 0;
+    } catch (e) {
+        console.error('Error fetching asset balance:', e);
+        return 0;
+    }
 }
 
 /**

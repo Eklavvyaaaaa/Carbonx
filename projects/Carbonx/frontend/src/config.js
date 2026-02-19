@@ -1,16 +1,17 @@
-// ─── Algorand Testnet Configuration ─────────────────────────────────
-// Replace the APP_ID values with your deployed contract App IDs on testnet.
+// ─── Algorand Localnet Configuration ─────────────────────────────────
+// Replace the APP_ID values with your deployed contract App IDs on localnet.
 
-export const ALGORAND_NODE = 'https://testnet-api.algonode.cloud';
-export const ALGORAND_INDEXER = 'https://testnet-idx.algonode.cloud';
-export const ALGORAND_NETWORK = 'testnet';
+export const ALGORAND_NODE = 'http://localhost:4001';
+export const ALGORAND_INDEXER = 'http://localhost:8980';
+export const ALGORAND_NETWORK = 'localnet';
 
 // ─── Deployed Contract App IDs ──────────────────────────────────────
-// Set these after deploying your contracts to testnet
+// Set these after deploying your contracts to localnet
 export const APP_IDS = {
-    CARBON_MARKETPLACE: 0,    // Replace with your CarbonMarketplace App ID
-    ISSUER_REGISTRY: 0,       // Replace with your IssuerRegistry App ID
-    RETIREMENT_MANAGER: 0,    // Replace with your RetirementManager App ID
+    CARBON_MARKETPLACE: 1006,    // Deployed App ID
+    ISSUER_REGISTRY: 1004,       // Deployed App ID
+    RETIREMENT_MANAGER: 1002,    // Deployed App ID
+    GOVERNANCE_TOKEN_ID: 1008,   // CarbonX Governance Token ($CXG)
 };
 
 // ─── ABI Method Signatures ──────────────────────────────────────────
@@ -22,10 +23,13 @@ export const ABI_METHODS = {
         get_credits: 'get_credits(address)uint64',
         get_total_credits: 'get_total_credits()uint64',
         get_retired_credits: 'get_retired_credits()uint64',
+        buy_credits: 'buy_credits(pay,uint64)void',
+        get_current_price: 'get_current_price()uint64',
     },
     ISSUER_REGISTRY: {
         create: 'create()void',
         register_issuer: 'register_issuer()void',
+        vote: 'vote(account)void',
         approve_issuer: 'approve_issuer(address)void',
         revoke_issuer: 'revoke_issuer(address)void',
         get_issuer_status: 'get_issuer_status(address)uint64',

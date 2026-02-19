@@ -1,4 +1,4 @@
-from algopy import ARC4Contract, Account, GlobalState, LocalState, Txn, Global, UInt64
+from algopy import ARC4Contract, Account, GlobalState, LocalState, Txn, Global, UInt64, gtxn
 from algopy.arc4 import abimethod, baremethod
 
 
@@ -58,6 +58,44 @@ class CarbonMarketplace(ARC4Contract):
         self.credits_minted[Txn.sender] = current - amount
         self.total_credits.value -= amount
         self.retired_credits.value += amount
+
+    @abimethod()
+    def buy_credits(self, payment: gtxn.PaymentTransaction, amount: UInt64) -> None:
+        """Buy credits from the marketplace.
+
+        Price increases as total supply increases (Linear Bonding Curve).
+        Formula: Price = (Base + Supply * Slope) * Amount
+        Base = 0.1 ALGO (100,000 microAlgos)
+        Slope = 1 microAlgo per credit
+
+        Args:
+            payment: Payment transaction to the contract's account.
+            amount: Number of credits to buy.
+        """
+        assert amount > 0, "Amount must be greater than zero"
+        
+        # Calculate Price
+        base_price = UInt64(100_000) # 0.1 ALGO
+        slope = UInt64(1)
+        current_supply = self.total_credits.value
+        unit_price = base_price + (current_supply * slope)
+        total_cost = unit_price * amount
+        
+        # Verify Payment
+        assert payment.receiver == Global.current_application_address, "Payment must be to contract"
+        assert payment.amount >= total_cost, "Insufficient payment"
+        
+        # Mint Credits
+        self.total_credits.value += amount
+        current_bal = self.credits_minted.get(Txn.sender, default=UInt64(0))
+        self.credits_minted[Txn.sender] = current_bal + amount
+
+    @abimethod(readonly=True)
+    def get_current_price(self) -> UInt64:
+        """Return the current price per credit in microAlgos."""
+        base_price = UInt64(100_000)
+        slope = UInt64(1)
+        return base_price + (self.total_credits.value * slope)
 
     @abimethod(readonly=True)
     def get_credits(self, account: Account) -> UInt64:

@@ -1,6 +1,8 @@
 // Contract-specific helpers for the three CarbonX smart contracts
 import { APP_IDS, ABI_METHODS } from '../config';
-import { callMethod, simulateReadonly, readGlobalState } from './algorand';
+import { callMethod, simulateReadonly, readGlobalState, readLocalState, algodClient, getIndexerClient } from './algorand';
+
+import algosdk from 'algosdk';
 
 // ─── CarbonMarketplace ──────────────────────────────────────────────
 
@@ -19,6 +21,42 @@ export async function retireCredits(sender, amount) {
         sender,
         ABI_METHODS.MARKETPLACE.retire_credits,
         [amount]
+    );
+}
+
+export async function buyCredits(sender, amount, pricePerUnit) {
+    // This is a placeholder or simplified wrapper. 
+    // Use buyCreditsWithCost for actual implementation.
+    console.warn("Use buyCreditsWithCost instead");
+}
+
+export async function buyCreditsWithCost(sender, creditAmount, totalCostMicroAlgos) {
+    const params = await algodClient.getTransactionParams().do();
+
+    // Payment Transaction to Contract (ensure amount is BigInt for precision)
+    const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: sender,
+        to: algosdk.getApplicationAddress(APP_IDS.CARBON_MARKETPLACE),
+        amount: BigInt(totalCostMicroAlgos),
+        suggestedParams: params,
+    });
+
+    return callMethod(
+        APP_IDS.CARBON_MARKETPLACE,
+        sender,
+        ABI_METHODS.MARKETPLACE.buy_credits,
+        [
+            { txn: payTxn, sign: true },
+            creditAmount
+        ]
+    );
+}
+
+export async function getCurrentPrice() {
+    return simulateReadonly(
+        APP_IDS.CARBON_MARKETPLACE,
+        null,
+        ABI_METHODS.MARKETPLACE.get_current_price
     );
 }
 
@@ -70,6 +108,15 @@ export async function approveIssuer(sender, account) {
     );
 }
 
+export async function voteForIssuer(sender, account) {
+    return callMethod(
+        APP_IDS.ISSUER_REGISTRY,
+        sender,
+        ABI_METHODS.ISSUER_REGISTRY.vote,
+        [account]
+    );
+}
+
 export async function revokeIssuer(sender, account) {
     return callMethod(
         APP_IDS.ISSUER_REGISTRY,
@@ -98,6 +145,42 @@ export async function getApprovedCount() {
 
 export async function getIssuerRegistryState() {
     return readGlobalState(APP_IDS.ISSUER_REGISTRY);
+}
+
+export async function getPendingIssuers() {
+    const indexer = getIndexerClient();
+    try {
+        const response = await indexer.searchAccounts()
+            .applicationID(APP_IDS.ISSUER_REGISTRY)
+            .do();
+
+        const pending = [];
+        for (const account of response.accounts) {
+            // Check local state for 'is_registered' and 'is_approved'
+            const localState = account['apps-local-state']?.find(a => a.id === APP_IDS.ISSUER_REGISTRY);
+            if (!localState) continue;
+
+            const getKey = (key) => {
+                const kv = localState['key-value']?.find(k => atob(k.key) === key);
+                return kv ? (kv.value.type === 2 ? kv.value.uint : atob(kv.value.bytes)) : 0;
+            };
+
+            const isRegistered = getKey('is_registered');
+            const isApproved = getKey('is_approved');
+            const votes = getKey('vote_count');
+
+            if (isRegistered === 1 && isApproved === 0) {
+                pending.push({
+                    address: account.address,
+                    votes: votes || 0
+                });
+            }
+        }
+        return pending;
+    } catch (e) {
+        console.error('Error fetching pending issuers:', e);
+        return [];
+    }
 }
 
 // ─── RetirementManager ──────────────────────────────────────────────
