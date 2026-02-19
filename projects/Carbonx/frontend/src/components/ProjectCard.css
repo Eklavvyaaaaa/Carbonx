@@ -1,0 +1,158 @@
+/* ─── Project Card ─────────────────────────────────────────────── */
+.project-card {
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--c-border-light);
+}
+
+.project-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-xl);
+}
+
+.project-img {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--c-bg-alt);
+    position: relative;
+    overflow: hidden;
+}
+
+.project-img::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.15), transparent);
+}
+
+.badge-category {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    backdrop-filter: blur(8px);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    border-radius: var(--r-full);
+    z-index: 1;
+}
+
+.project-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-header {
+    margin-bottom: 0.75rem;
+}
+
+.project-header h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    line-height: 1.3;
+}
+
+.project-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--c-text-light);
+}
+
+.project-desc {
+    font-size: 0.85rem;
+    color: var(--c-text-light);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.project-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--c-border-light);
+    border-bottom: 1px solid var(--c-border-light);
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.stat .label {
+    font-size: 0.7rem;
+    color: var(--c-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.stat .value {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--c-primary);
+}
+
+.value-price {
+    color: var(--c-success);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.value-risk {
+    font-weight: 600;
+    display: inline-block;
+    width: fit-content;
+}
+
+.project-revenue {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--c-text-light);
+    margin-bottom: 1rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--c-accent-dim);
+    border-radius: var(--r-md);
+}
+
+.project-revenue strong {
+    color: var(--c-primary);
+}
+
+.project-card .btn {
+    font-size: 0.875rem;
+    padding: 0.65rem;
+    width: 100%;
+    text-align: center;
+    margin-top: auto;
+}
+
+.project-card .btn:hover {
+    background: var(--c-primary);
+    color: white;
+    border-color: var(--c-primary);
+}
