@@ -1,9 +1,24 @@
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
+import { getAssetBalance } from '../services/algorand';
+import { APP_IDS } from '../config';
 import './Layout.css';
 
 export default function Layout() {
     const { account, shortAddress, connecting, connect, disconnect } = useWallet();
+    const [cxgBalance, setCxgBalance] = useState(0);
+
+    useEffect(() => {
+        if (account && APP_IDS.GOVERNANCE_TOKEN_ID) {
+            getAssetBalance(account, APP_IDS.GOVERNANCE_TOKEN_ID).then(bal => {
+                // Asset decimals is 6
+                setCxgBalance(bal / 1_000_000);
+            });
+        } else {
+            setCxgBalance(0);
+        }
+    }, [account]);
 
     return (
         <div className="app-layout">
@@ -53,7 +68,10 @@ export default function Layout() {
                     <div className="topbar-actions">
                         {account ? (
                             <div className="wallet-connected">
-                                <span className="wallet-dot"></span>
+                                <div className="balance-pill" title="CarbonX Governance Token">
+                                    <span className={`status-dot ${cxgBalance > 0 ? 'active' : 'inactive'}`}></span>
+                                    <span className="balance-val">{cxgBalance.toLocaleString()} CXG</span>
+                                </div>
                                 <span className="wallet-addr">{shortAddress}</span>
                                 <button className="btn btn-ghost btn-sm" onClick={disconnect}>
                                     Disconnect

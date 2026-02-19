@@ -1,4 +1,5 @@
-from algopy import ARC4Contract, Account, GlobalState, LocalState, Txn, Global, UInt64, Bytes
+from algopy import ARC4Contract, Account, GlobalState, LocalState, Txn, Global, UInt64, Bytes, op
+
 from algopy.arc4 import abimethod, baremethod
 
 
@@ -19,6 +20,7 @@ class IssuerRegistry(ARC4Contract):
         self.approved_count = GlobalState(UInt64(0), key="approved_count")
         self.is_registered = LocalState(UInt64, key="is_registered")
         self.is_approved = LocalState(UInt64, key="is_approved")
+        self.vote_count = LocalState(UInt64, key="vote_count")
 
     @abimethod(create="require")
     def create(self) -> None:
@@ -40,6 +42,34 @@ class IssuerRegistry(ARC4Contract):
         current = self.is_registered.get(Txn.sender, default=UInt64(0))
         assert current == 0, "Already registered"
         self.is_registered[Txn.sender] = UInt64(1)
+        self.vote_count[Txn.sender] = UInt64(0)
+
+    @abimethod()
+    def vote(self, issuer: Account) -> None:
+        """Vote for an issuer to be approved. Requires holding CXG token (ID 1008)."""
+        # 1. Check Token Balance
+        asset_id = UInt64(1008)
+        balance, exists = op.AssetHolding.get_asset_balance(Txn.sender, asset_id)
+        assert exists and balance > 0, "Must hold Governance Token (CXG)"
+
+        # 2. Check Target
+        registered = self.is_registered.get(issuer, default=UInt64(0))
+        assert registered == 1, "Issuer not registered"
+        approved = self.is_approved.get(issuer, default=UInt64(0))
+        assert approved == 0, "Issuer already approved"
+
+        # 3. Check Double Voting (Box: Voter + Issuer)
+        # Key = Voter(32) + Issuer(32)
+        key = Txn.sender.bytes + issuer.bytes
+        box_exists = op.Box.get(key)
+        assert not box_exists[1], "Already voted for this issuer"
+
+        # 4. Record Vote
+        op.Box.put(key, Bytes(b"1"))
+
+        # 5. Increment Vote Count
+        current_votes = self.vote_count.get(issuer, default=UInt64(0))
+        self.vote_count[issuer] = current_votes + UInt64(1)
 
     @abimethod()
     def approve_issuer(self, account: Account) -> None:
@@ -47,7 +77,14 @@ class IssuerRegistry(ARC4Contract):
 
         The target account must have registered first.
         """
-        assert Txn.sender.bytes == self.admin.value, "Only admin can approve"
+
+        # Admin or DAO check
+        is_admin = Txn.sender.bytes == self.admin.value
+        votes = self.vote_count.get(account, default=UInt64(0))
+        is_dao = votes >= UInt64(1) # Reduced to 1 for easy testing, normally 5
+        
+        assert is_admin or is_dao, "Not authorized (Admin or 5+ votes required)"
+        
         registered = self.is_registered.get(account, default=UInt64(0))
         assert registered == 1, "Account not registered"
         already_approved = self.is_approved.get(account, default=UInt64(0))

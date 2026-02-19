@@ -5,9 +5,11 @@ import { APP_IDS } from '../config';
 import {
     registerIssuer,
     approveIssuer,
+    voteForIssuer,
     revokeIssuer,
     getIssuerStatus,
     getIssuerRegistryState,
+    getPendingIssuers,
 } from '../services/contracts';
 import './Pages.css';
 
@@ -22,6 +24,7 @@ export default function Issuers() {
     const toast = useToast();
 
     const [stats, setStats] = useState({ approved_count: 0 });
+    const [pendingList, setPendingList] = useState([]);
     const [approveAddr, setApproveAddr] = useState('');
     const [revokeAddr, setRevokeAddr] = useState('');
     const [statusAddr, setStatusAddr] = useState('');
@@ -33,6 +36,8 @@ export default function Issuers() {
         try {
             const state = await getIssuerRegistryState();
             setStats(state);
+            const pending = await getPendingIssuers();
+            setPendingList(pending);
         } catch (e) {
             console.error(e);
         }
@@ -55,13 +60,27 @@ export default function Issuers() {
         setLoading(false);
     };
 
-    const handleApprove = async (e) => {
-        e.preventDefault();
-        if (!account) return toast.warning('Connect your wallet first');
-        if (!approveAddr) return toast.warning('Enter an address');
+    const handleVote = async (issuerAddr) => {
+        if (!account) return toast.warning('Connect wallet');
         setLoading(true);
         try {
-            await approveIssuer(account, approveAddr);
+            await voteForIssuer(account, issuerAddr);
+            toast.success('Voted successfully!');
+            await refresh();
+        } catch (e) {
+            toast.error(e.message || 'Voting failed');
+        }
+        setLoading(false);
+    };
+
+    const handleApprove = async (e, addrOverride) => {
+        if (e) e.preventDefault();
+        const addr = addrOverride || approveAddr;
+        if (!account) return toast.warning('Connect your wallet first');
+        if (!addr) return toast.warning('Enter an address');
+        setLoading(true);
+        try {
+            await approveIssuer(account, addr);
             toast.success('Issuer approved!');
             setApproveAddr('');
             await refresh();
@@ -129,6 +148,57 @@ export default function Issuers() {
                     </div>
                 </div>
             </div>
+
+            {/* ─── Pending Issuers (DAO Voting) ──────────────── */}
+            {pendingList.length > 0 && (
+                <div className="glass-card mb-6">
+                    <h3 className="section-title">
+                        <span className="icon">🗳️</span>
+                        DAO Voting (Pending Issuers)
+                    </h3>
+                    <div className="table-responsive">
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th>Issuer Address</th>
+                                    <th>Votes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pendingList.map((issuer, idx) => (
+                                    <tr key={idx}>
+                                        <td className="font-mono text-sm">{issuer.address}</td>
+                                        <td>
+                                            <div className="vote-progress">
+                                                <span className="font-bold">{issuer.votes}</span> / 5
+                                                <progress value={issuer.votes} max="5" className="ml-2 w-20"></progress>
+                                            </div>
+                                        </td>
+                                        <td className="flex gap-2">
+                                            <button
+                                                className="btn btn-sm btn-secondary"
+                                                onClick={() => handleVote(issuer.address)}
+                                                disabled={loading}
+                                            >
+                                                👍 Vote
+                                            </button>
+                                            <button
+                                                className="btn btn-sm btn-success"
+                                                onClick={() => handleApprove(null, issuer.address)}
+                                                disabled={loading || issuer.votes < 1} // Threshold 1 for demo
+                                                title={issuer.votes < 1 ? "Need 5 votes" : "Approve now"}
+                                            >
+                                                ✅ Approve
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
 
             {/* ─── Admin Panel ───────────────────────────────── */}
             <div className="form-grid">
