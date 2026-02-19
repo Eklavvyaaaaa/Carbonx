@@ -79,17 +79,17 @@ export default function Retirement() {
             {/* ─── Stats ─────────────────────────────────────── */}
             <div className="stats-grid">
                 <div className="stat-card" style={{ '--accent': '#10b981' }}>
-                    <div className="stat-icon" style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981' }}>📦</div>
+                    <div className="stat-icon" style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg></div>
                     <div className="stat-label">Total Supply</div>
                     <div className="stat-value">{(stats.total_supply || 0).toLocaleString()}</div>
                 </div>
                 <div className="stat-card" style={{ '--accent': '#ef4444' }}>
-                    <div className="stat-icon" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>🔥</div>
+                    <div className="stat-icon" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z" /></svg></div>
                     <div className="stat-label">Retired Credits</div>
                     <div className="stat-value">{(stats.retired_credits || 0).toLocaleString()}</div>
                 </div>
                 <div className="stat-card" style={{ '--accent': '#06b6d4' }}>
-                    <div className="stat-icon" style={{ background: 'rgba(6,182,212,0.15)', color: '#06b6d4' }}>🔄</div>
+                    <div className="stat-icon" style={{ background: 'rgba(6,182,212,0.15)', color: '#06b6d4' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" /></svg></div>
                     <div className="stat-label">Available Supply</div>
                     <div className="stat-value">{available.toLocaleString()}</div>
                 </div>
@@ -98,7 +98,7 @@ export default function Retirement() {
             {/* ─── Progress ──────────────────────────────────── */}
             <div className="glass-card" style={{ marginBottom: 'var(--sp-6)' }}>
                 <h3 className="section-title">
-                    <span className="icon">📊</span>
+                    <span className="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg></span>
                     Retirement Progress
                 </h3>
                 <div className="progress-info">
@@ -120,7 +120,7 @@ export default function Retirement() {
             <div className="form-grid">
                 <div className="glass-card">
                     <h3 className="section-title">
-                        <span className="icon">📦</span>
+                        <span className="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg></span>
                         Add Supply
                     </h3>
                     <p className="form-desc">Register additional credit supply. Creator only.</p>
@@ -140,7 +140,7 @@ export default function Retirement() {
                                 />
                             </div>
                             <button className="btn btn-primary" type="submit" disabled={loading || !account}>
-                                {loading ? '⟳' : '📦'} Add
+                                {loading ? 'Loading...' : 'Add'}
                             </button>
                         </div>
                     </form>
@@ -148,7 +148,7 @@ export default function Retirement() {
 
                 <div className="glass-card">
                     <h3 className="section-title">
-                        <span className="icon">🔥</span>
+                        <span className="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z" /></svg></span>
                         Retire Credits
                     </h3>
                     <p className="form-desc">Permanently retire credits from available supply. Creator only.</p>
@@ -168,7 +168,7 @@ export default function Retirement() {
                                 />
                             </div>
                             <button className="btn btn-danger" type="submit" disabled={loading || !account}>
-                                {loading ? '⟳' : '🔥'} Retire
+                                {loading ? 'Loading...' : 'Retire'}
                             </button>
                         </div>
                     </form>

@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
+import { getAssetBalance } from '../services/algorand';
+import { APP_IDS } from '../config';
 import './Navbar.css';
 
 export default function Navbar() {
     const { account, connect, disconnect, connecting, shortAddress } = useWallet();
+    const [cxgBalance, setCxgBalance] = useState(0);
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const location = useLocation();
+
+    useEffect(() => {
+        if (account && APP_IDS.GOVERNANCE_TOKEN_ID) {
+            getAssetBalance(account, APP_IDS.GOVERNANCE_TOKEN_ID).then(bal => {
+                setCxgBalance(bal / 1_000_000);
+            });
+        } else {
+            setCxgBalance(0);
+        }
+    }, [account]);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -56,9 +69,15 @@ export default function Navbar() {
                 {/* Actions */}
                 <div className="navbar-actions desktop-only">
                     {account ? (
-                        <div className="wallet-badge" onClick={disconnect} title="Disconnect">
-                            <span className="dot"></span>
-                            {shortAddress}
+                        <div className="account-pills">
+                            <div className="balance-pill" title="Governance Token Balance">
+                                <span className={`status-dot ${cxgBalance > 0 ? 'active' : 'inactive'}`}></span>
+                                <span className="balance-val">{cxgBalance.toLocaleString()} CXG</span>
+                            </div>
+                            <div className="wallet-badge" onClick={disconnect} title="Disconnect">
+                                <span className="dot"></span>
+                                {shortAddress}
+                            </div>
                         </div>
                     ) : (
                         <button

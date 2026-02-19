@@ -113,6 +113,42 @@
     border-color: rgba(255, 255, 255, 0.2);
 }
 
+.account-pills {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.balance-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: var(--r-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--c-accent);
+}
+
+.balance-val {
+    letter-spacing: 0.02em;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4b5563;
+    /* grey */
+}
+
+.status-dot.active {
+    background: var(--c-accent);
+    box-shadow: 0 0 6px var(--c-accent);
+}
+
 .dot {
     width: 8px;
     height: 8px;

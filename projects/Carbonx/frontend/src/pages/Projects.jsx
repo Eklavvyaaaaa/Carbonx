@@ -6,57 +6,57 @@ const ALL_PROJECTS = [
     // Nature-Based
     {
         id: 1, title: "Amazon Reforestation", category: "Nature-Based", location: "Brazil",
-        credits: "50k", risk: "Low", price: "12.50", revenue: "$625K/yr",
+        credits: "50k", risk: "Low", price: "12.50", revenue: "₹5.2Cr/yr",
         description: "Large-scale native tree planting in deforested areas of the Amazon basin, restoring biodiversity and creating long-term carbon sinks.",
         image: "https://images.unsplash.com/photo-1542601906990-b4d3fb7d5c73?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 2, title: "Soil Carbon Enhancement", category: "Nature-Based", location: "India",
-        credits: "35k", risk: "Medium", price: "14.00", revenue: "$490K/yr",
+        credits: "35k", risk: "Medium", price: "14.00", revenue: "₹4.1Cr/yr",
         description: "Regenerative farming practices that enhance soil organic carbon through cover cropping, no-till agriculture, and composting.",
         image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 3, title: "Blue Carbon Mangroves", category: "Nature-Based", location: "Indonesia",
-        credits: "20k", risk: "Medium", price: "22.00", revenue: "$440K/yr",
+        credits: "20k", risk: "Medium", price: "22.00", revenue: "₹3.7Cr/yr",
         description: "Protecting and restoring coastal mangrove ecosystems that store up to 10x more carbon than terrestrial forests.",
         image: "https://images.unsplash.com/photo-1584553181829-f53835f8e657?auto=format&fit=crop&q=80&w=800"
     },
     // Methane Projects
     {
         id: 4, title: "Landfill Gas Capture", category: "Methane", location: "USA",
-        credits: "45k", risk: "Low", price: "10.00", revenue: "$450K/yr",
+        credits: "45k", risk: "Low", price: "10.00", revenue: "₹3.7Cr/yr",
         description: "Capturing methane from municipal landfills and converting it to electricity, preventing a potent greenhouse gas from entering the atmosphere.",
         image: "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 5, title: "Biogas Plants India", category: "Methane", location: "India",
-        credits: "28k", risk: "Low", price: "9.50", revenue: "$266K/yr",
+        credits: "28k", risk: "Low", price: "9.50", revenue: "₹2.2Cr/yr",
         description: "Community-scale biogas digesters converting agricultural waste and cattle dung into clean cooking fuel and organic fertilizer.",
         image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 6, title: "Methane Capture Delhi", category: "Methane", location: "India",
-        credits: "38k", risk: "Low", price: "11.00", revenue: "$418K/yr",
+        credits: "38k", risk: "Low", price: "11.00", revenue: "₹3.5Cr/yr",
         description: "Industrial methane capture at waste processing facilities in Delhi NCR region, reducing urban methane emissions significantly.",
         image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&q=80&w=800"
     },
     // Renewable
     {
         id: 7, title: "Gujarat Solar Park", category: "Renewable", location: "India",
-        credits: "120k", risk: "Low", price: "8.00", revenue: "$960K/yr",
+        credits: "120k", risk: "Low", price: "8.00", revenue: "₹7.9Cr/yr",
         description: "One of the world's largest solar parks generating clean energy to displace coal-based power across western India.",
         image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 8, title: "Wind Farm Expansion", category: "Renewable", location: "Germany",
-        credits: "80k", risk: "Low", price: "9.50", revenue: "$760K/yr",
+        credits: "80k", risk: "Low", price: "9.50", revenue: "₹6.3Cr/yr",
         description: "Adding new wind turbines to existing wind farm infrastructure in northern Germany, increasing clean energy capacity.",
         image: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 9, title: "Clean Cookstoves", category: "Community", location: "Kenya",
-        credits: "30k", risk: "Medium", price: "15.00", revenue: "$450K/yr",
+        credits: "30k", risk: "Medium", price: "15.00", revenue: "₹3.7Cr/yr",
         description: "Distributing fuel-efficient cookstoves to rural communities, reducing wood consumption, indoor air pollution, and deforestation rates.",
         image: "https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?auto=format&fit=crop&q=80&w=800"
     },

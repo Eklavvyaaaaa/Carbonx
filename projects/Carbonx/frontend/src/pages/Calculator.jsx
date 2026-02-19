@@ -9,6 +9,23 @@ const REGIONS = {
     'EU': { factor: 0.8, currency: '€', rate: 0.92 }
 };
 
+// SVG Icon components
+const IconBolt = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+);
+const IconFuel = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 22V6a2 2 0 012-2h8a2 2 0 012 2v16" /><path d="M15 10h2a2 2 0 012 2v2a2 2 0 002 2h0" /><path d="M3 22h12" /></svg>
+);
+const IconCar = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 17h14M5 17a2 2 0 01-2-2V9a2 2 0 012-2h1l2-3h8l2 3h1a2 2 0 012 2v6a2 2 0 01-2 2" /><circle cx="7.5" cy="17" r="2" /><circle cx="16.5" cy="17" r="2" /></svg>
+);
+const IconTrash = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /></svg>
+);
+const IconLeaf = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89-.82L5 22l.82-1.89C10.83 18.1 14 16 22 7l-5 1z" /></svg>
+);
+
 export default function Calculator() {
     const navigate = useNavigate();
     const [inputs, setInputs] = useState({
@@ -62,6 +79,13 @@ export default function Calculator() {
         setResult(null);
     };
 
+    const breakdownItems = result ? [
+        { label: 'Electricity', value: result.breakdown.electricity, color: '#f59e0b', Icon: IconBolt },
+        { label: 'Fuel', value: result.breakdown.fuel, color: '#ef4444', Icon: IconFuel },
+        { label: 'Transport', value: result.breakdown.distance, color: '#3b82f6', Icon: IconCar },
+        { label: 'Waste', value: result.breakdown.waste, color: '#8b5cf6', Icon: IconTrash },
+    ] : [];
+
     return (
         <div className="page-calculator">
             <div className="page-banner">
@@ -97,7 +121,7 @@ export default function Calculator() {
 
                                 <div className="input-group mb-4">
                                     <label>
-                                        <span className="label-icon">⚡</span>
+                                        <span className="label-icon"><IconBolt /></span>
                                         Electricity Usage (kWh)
                                     </label>
                                     <input
@@ -109,7 +133,7 @@ export default function Calculator() {
 
                                 <div className="input-group mb-4">
                                     <label>
-                                        <span className="label-icon">⛽</span>
+                                        <span className="label-icon"><IconFuel /></span>
                                         Fuel Consumption (Liters)
                                     </label>
                                     <input
@@ -121,7 +145,7 @@ export default function Calculator() {
 
                                 <div className="input-group mb-4">
                                     <label>
-                                        <span className="label-icon">🚗</span>
+                                        <span className="label-icon"><IconCar /></span>
                                         Vehicle Distance (km)
                                     </label>
                                     <input
@@ -133,7 +157,7 @@ export default function Calculator() {
 
                                 <div className="input-group mb-6">
                                     <label>
-                                        <span className="label-icon">🗑️</span>
+                                        <span className="label-icon"><IconTrash /></span>
                                         Waste Generated (kg)
                                     </label>
                                     <input
@@ -173,7 +197,7 @@ export default function Calculator() {
 
                                     <div className="credits-needed-box">
                                         <div className="cn-left">
-                                            <span className="cn-icon">🌱</span>
+                                            <span className="cn-icon"><IconLeaf /></span>
                                             <div>
                                                 <strong>{result.credits} Credits</strong>
                                                 <p className="text-xs text-muted">Needed to offset</p>
@@ -189,18 +213,13 @@ export default function Calculator() {
                                     <div className="breakdown-section">
                                         <h4 className="mb-4">Emission Breakdown</h4>
                                         <div className="breakdown-bars">
-                                            {[
-                                                { label: 'Electricity', value: result.breakdown.electricity, color: '#f59e0b', icon: '⚡' },
-                                                { label: 'Fuel', value: result.breakdown.fuel, color: '#ef4444', icon: '⛽' },
-                                                { label: 'Transport', value: result.breakdown.distance, color: '#3b82f6', icon: '🚗' },
-                                                { label: 'Waste', value: result.breakdown.waste, color: '#8b5cf6', icon: '🗑️' },
-                                            ].map((item, i) => {
+                                            {breakdownItems.map((item, i) => {
                                                 const total = result.breakdown.electricity + result.breakdown.fuel + result.breakdown.distance + result.breakdown.waste;
                                                 const pct = total > 0 ? (item.value / total * 100) : 0;
                                                 return (
                                                     <div key={i} className="breakdown-row">
                                                         <div className="breakdown-label">
-                                                            <span>{item.icon}</span>
+                                                            <span><item.Icon /></span>
                                                             <span>{item.label}</span>
                                                         </div>
                                                         <div className="breakdown-bar-wrap">
