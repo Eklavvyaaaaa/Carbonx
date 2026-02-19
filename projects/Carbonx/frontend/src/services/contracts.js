@@ -33,7 +33,7 @@ export async function buyCredits(sender, amount, pricePerUnit) {
 export async function buyCreditsWithCost(sender, creditAmount, totalCostMicroAlgos) {
     const params = await algodClient.getTransactionParams().do();
 
-    // Payment Transaction to Contract
+    // Payment Transaction to Contract (ensure amount is BigInt for precision)
     const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: sender,
         to: algosdk.getApplicationAddress(APP_IDS.CARBON_MARKETPLACE),

@@ -10,7 +10,7 @@ import {
     getMarketplaceState,
     getCredits,
 } from '../services/contracts';
-import { formatCredits, parseCredits } from '../utils/formatting';
+import { formatCredits, parseCredits, SCALING_FACTOR } from '../utils/formatting';
 import './Pages.css';
 
 export default function Marketplace() {
@@ -91,15 +91,15 @@ export default function Marketplace() {
         setLoading(true);
         try {
             const amountBase = parseCredits(buyAmount);
-            // Calculate total cost based on current price (simplified)
-            // Real app should handle slippage. 
-            // Cost = Price * Amount. 
-            // Current Price is in microAlgos per credit.
-            // Amount is in credits.
-            // Total Cost = currentPrice * Number(buyAmount).
-            // Wait, currentPrice is per 1 credit (1,000,000 units).
-            // So if I buy 1 credit, cost is currentPrice.
-            const totalCost = Math.ceil(currentPrice * Number(buyAmount));
+            // Calculate total cost using integer arithmetic to maintain precision
+            // totalCost = ceil(currentPrice * amountBase / SCALING_FACTOR)
+            // Using BigInt for absolute precision in microAlgo calculation
+            const amountBI = amountBase; // parseCredits returns BigInt
+            const priceBI = BigInt(Math.floor(currentPrice));
+            const factorBI = BigInt(SCALING_FACTOR);
+
+            // Integer ceiling formula: (a + b - 1) / b
+            const totalCost = (priceBI * amountBI + factorBI - 1n) / factorBI;
 
             await buyCreditsWithCost(account, Number(amountBase), totalCost);
             toast.success(`Bought ${buyAmount} credits!`);
