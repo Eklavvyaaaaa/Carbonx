@@ -1,0 +1,77 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock "retired_credits"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/retirement_manager/contract.py:9
+    // self.retired_credits = GlobalState(UInt64(0), key="retired_credits")
+    bytec_0 // "retired_credits"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/retirement_manager/contract.py:5
+    // class RetirementManager(ARC4Contract):
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@7
+    pushbytes 0x6d10009f // method "retire_credits(uint64)void"
+    txna ApplicationArgs 0
+    match retire_credits
+    err
+
+main_create_NoOp@7:
+    // smart_contracts/retirement_manager/contract.py:5
+    // class RetirementManager(ARC4Contract):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@8
+    err
+
+main_create_route@8:
+    // smart_contracts/retirement_manager/contract.py:14
+    // self.retired_credits.value = UInt64(0)
+    bytec_0 // "retired_credits"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/retirement_manager/contract.py:11
+    // @abimethod(create="require")
+    intc_1 // 1
+    return
+
+
+// smart_contracts.retirement_manager.contract.RetirementManager.retire_credits[routing]() -> void:
+retire_credits:
+    // smart_contracts/retirement_manager/contract.py:16
+    // @abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/retirement_manager/contract.py:19
+    // assert amount > 0, "Amount must be greater than zero"
+    dup
+    assert // Amount must be greater than zero
+    // smart_contracts/retirement_manager/contract.py:20
+    // self.retired_credits.value += amount
+    intc_0 // 0
+    bytec_0 // "retired_credits"
+    app_global_get_ex
+    assert // check self.retired_credits exists
+    +
+    bytec_0 // "retired_credits"
+    swap
+    app_global_put
+    // smart_contracts/retirement_manager/contract.py:16
+    // @abimethod()
+    intc_1 // 1
+    return

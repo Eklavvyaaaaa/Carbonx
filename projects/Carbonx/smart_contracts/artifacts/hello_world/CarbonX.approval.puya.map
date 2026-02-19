@@ -1,0 +1,1008 @@
+{
+  "version": 3,
+  "sources": [
+    "../../hello_world/contract.py"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAQwD;AAAhB;AAAhC;AACgD;AAAf;AAAjC;AACkD;AAAf;AAAnC;AANR;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAWQ;AAA0B;AAA1B;AACA;AAA2B;AAA3B;AACA;AAA6B;AAA7B;AALH;AAAA;AAOA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAGU;;AAAc;;AAAd;AAAP;AACA;AAAA;AAAA;AAJH;AAAA;AAMA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAGU;;AAAc;;AAAd;AAAP;AACA;AAAA;AACA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AALH;AAAA;AAOA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAGG;AAAA;AACO;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAP;AACA;;AAAA;AAAA;AAAA;AAAA;AACA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AANH;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "algopy.arc4.ARC4Contract.approval_program",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1 8"
+    },
+    "6": {
+      "op": "bytecblock \"total_credits\" \"retired_credits\" \"project_name\" \"\""
+    },
+    "52": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "54": {
+      "op": "bnz main_after_if_else@2",
+      "stack_out": []
+    },
+    "57": {
+      "op": "bytec_2 // \"project_name\"",
+      "defined_out": [
+        "\"project_name\""
+      ],
+      "stack_out": [
+        "\"project_name\""
+      ]
+    },
+    "58": {
+      "op": "bytec_3 // \"\"",
+      "defined_out": [
+        "\"\"",
+        "\"project_name\""
+      ],
+      "stack_out": [
+        "\"project_name\"",
+        "\"\""
+      ]
+    },
+    "59": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "60": {
+      "op": "bytec_0 // \"total_credits\"",
+      "defined_out": [
+        "\"total_credits\""
+      ],
+      "stack_out": [
+        "\"total_credits\""
+      ]
+    },
+    "61": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"total_credits\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"total_credits\"",
+        "0"
+      ]
+    },
+    "62": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "63": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\""
+      ],
+      "stack_out": [
+        "\"retired_credits\""
+      ]
+    },
+    "64": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"retired_credits\"",
+        "0"
+      ]
+    },
+    "65": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "66": {
+      "block": "main_after_if_else@2",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "68": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "69": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "70": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "72": {
+      "op": "bz main_create_NoOp@9",
+      "stack_out": []
+    },
+    "75": {
+      "op": "pushbytess 0x7b54e938 0x29a51908 0x6d10009f // method \"register_project(string)void\", method \"mint_credits(uint64)void\", method \"retire_credits(uint64)void\"",
+      "defined_out": [
+        "Method(mint_credits(uint64)void)",
+        "Method(register_project(string)void)",
+        "Method(retire_credits(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(register_project(string)void)",
+        "Method(mint_credits(uint64)void)",
+        "Method(retire_credits(uint64)void)"
+      ]
+    },
+    "92": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(mint_credits(uint64)void)",
+        "Method(register_project(string)void)",
+        "Method(retire_credits(uint64)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(register_project(string)void)",
+        "Method(mint_credits(uint64)void)",
+        "Method(retire_credits(uint64)void)",
+        "tmp%4#0"
+      ]
+    },
+    "95": {
+      "op": "match register_project mint_credits retire_credits",
+      "stack_out": []
+    },
+    "103": {
+      "op": "err"
+    },
+    "104": {
+      "block": "main_create_NoOp@9",
+      "stack_in": [],
+      "op": "pushbytes 0x4c5c61ba // method \"create()void\"",
+      "defined_out": [
+        "Method(create()void)"
+      ],
+      "stack_out": [
+        "Method(create()void)"
+      ]
+    },
+    "110": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ]
+    },
+    "113": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "117": {
+      "op": "err"
+    },
+    "118": {
+      "subroutine": "smart_contracts.hello_world.contract.CarbonX.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "bytec_2 // \"project_name\"",
+      "defined_out": [
+        "\"project_name\""
+      ],
+      "stack_out": [
+        "\"project_name\""
+      ]
+    },
+    "119": {
+      "op": "bytec_3 // \"\"",
+      "defined_out": [
+        "\"\"",
+        "\"project_name\""
+      ],
+      "stack_out": [
+        "\"project_name\"",
+        "\"\""
+      ]
+    },
+    "120": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "121": {
+      "op": "bytec_0 // \"total_credits\"",
+      "defined_out": [
+        "\"total_credits\""
+      ],
+      "stack_out": [
+        "\"total_credits\""
+      ]
+    },
+    "122": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"total_credits\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"total_credits\"",
+        "0"
+      ]
+    },
+    "123": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "124": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\""
+      ],
+      "stack_out": [
+        "\"retired_credits\""
+      ]
+    },
+    "125": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"retired_credits\"",
+        "0"
+      ]
+    },
+    "126": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "127": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "128": {
+      "op": "return",
+      "stack_out": []
+    },
+    "129": {
+      "subroutine": "smart_contracts.hello_world.contract.CarbonX.register_project[routing]",
+      "params": {},
+      "block": "register_project",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "132": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "133": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "134": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "135": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "137": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "138": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "140": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "141": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "142": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "143": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "name#0"
+      ],
+      "stack_out": [
+        "name#0"
+      ]
+    },
+    "146": {
+      "op": "txn Sender",
+      "defined_out": [
+        "name#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "name#0",
+        "tmp%0#1"
+      ]
+    },
+    "148": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "name#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "name#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ]
+    },
+    "150": {
+      "op": "==",
+      "defined_out": [
+        "name#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "tmp%2#0"
+      ]
+    },
+    "151": {
+      "error": "Only creator can register projects",
+      "op": "assert // Only creator can register projects",
+      "stack_out": [
+        "name#0"
+      ]
+    },
+    "152": {
+      "op": "bytec_2 // \"project_name\"",
+      "defined_out": [
+        "\"project_name\"",
+        "name#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "\"project_name\""
+      ]
+    },
+    "153": {
+      "op": "swap",
+      "stack_out": [
+        "\"project_name\"",
+        "name#0"
+      ]
+    },
+    "154": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "155": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "156": {
+      "op": "return",
+      "stack_out": []
+    },
+    "157": {
+      "subroutine": "smart_contracts.hello_world.contract.CarbonX.mint_credits[routing]",
+      "params": {},
+      "block": "mint_credits",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "160": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "161": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "162": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "163": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "164": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "165": {
+      "op": "btoi",
+      "defined_out": [
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "166": {
+      "op": "txn Sender",
+      "defined_out": [
+        "amount#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%0#1"
+      ]
+    },
+    "168": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "amount#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ]
+    },
+    "170": {
+      "op": "==",
+      "defined_out": [
+        "amount#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%2#0"
+      ]
+    },
+    "171": {
+      "error": "Only creator can mint credits",
+      "op": "assert // Only creator can mint credits",
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "172": {
+      "op": "dup",
+      "defined_out": [
+        "amount#0",
+        "amount#0 (copy)"
+      ],
+      "stack_out": [
+        "amount#0",
+        "amount#0 (copy)"
+      ]
+    },
+    "173": {
+      "error": "Amount must be greater than zero",
+      "op": "assert // Amount must be greater than zero",
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "174": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0"
+      ]
+    },
+    "175": {
+      "op": "bytec_0 // \"total_credits\"",
+      "defined_out": [
+        "\"total_credits\"",
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0",
+        "\"total_credits\""
+      ]
+    },
+    "176": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amount#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "177": {
+      "error": "check self.total_credits exists",
+      "op": "assert // check self.total_credits exists",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "178": {
+      "op": "+",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "179": {
+      "op": "bytec_0 // \"total_credits\"",
+      "stack_out": [
+        "tmp%4#0",
+        "\"total_credits\""
+      ]
+    },
+    "180": {
+      "op": "swap",
+      "stack_out": [
+        "\"total_credits\"",
+        "tmp%4#0"
+      ]
+    },
+    "181": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "182": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "183": {
+      "op": "return",
+      "stack_out": []
+    },
+    "184": {
+      "subroutine": "smart_contracts.hello_world.contract.CarbonX.retire_credits[routing]",
+      "params": {},
+      "block": "retire_credits",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "187": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "188": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "189": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "190": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "191": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "192": {
+      "op": "btoi",
+      "defined_out": [
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "193": {
+      "op": "dup",
+      "defined_out": [
+        "amount#0",
+        "amount#0 (copy)"
+      ],
+      "stack_out": [
+        "amount#0",
+        "amount#0 (copy)"
+      ]
+    },
+    "194": {
+      "error": "Amount must be greater than zero",
+      "op": "assert // Amount must be greater than zero",
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "195": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0"
+      ]
+    },
+    "196": {
+      "op": "bytec_0 // \"total_credits\"",
+      "defined_out": [
+        "\"total_credits\"",
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0",
+        "\"total_credits\""
+      ]
+    },
+    "197": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amount#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "198": {
+      "error": "check self.total_credits exists",
+      "op": "assert // check self.total_credits exists",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "199": {
+      "op": "dup",
+      "defined_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "200": {
+      "op": "dig 2",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)",
+        "amount#0 (copy)"
+      ]
+    },
+    "202": {
+      "op": ">=",
+      "defined_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "203": {
+      "error": "Insufficient credits to retire",
+      "op": "assert // Insufficient credits to retire",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "204": {
+      "op": "dig 1",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "amount#0 (copy)"
+      ]
+    },
+    "206": {
+      "op": "-",
+      "defined_out": [
+        "amount#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%2#0"
+      ]
+    },
+    "207": {
+      "op": "bytec_0 // \"total_credits\"",
+      "stack_out": [
+        "amount#0",
+        "tmp%2#0",
+        "\"total_credits\""
+      ]
+    },
+    "208": {
+      "op": "swap",
+      "stack_out": [
+        "amount#0",
+        "\"total_credits\"",
+        "tmp%2#0"
+      ]
+    },
+    "209": {
+      "op": "app_global_put",
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "210": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "amount#0",
+        "0"
+      ]
+    },
+    "211": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\"",
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0",
+        "\"retired_credits\""
+      ]
+    },
+    "212": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amount#0",
+        "maybe_exists%2#0",
+        "maybe_value%2#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%2#0",
+        "maybe_exists%2#0"
+      ]
+    },
+    "213": {
+      "error": "check self.retired_credits exists",
+      "op": "assert // check self.retired_credits exists",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%2#0"
+      ]
+    },
+    "214": {
+      "op": "+",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "215": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "stack_out": [
+        "tmp%3#0",
+        "\"retired_credits\""
+      ]
+    },
+    "216": {
+      "op": "swap",
+      "stack_out": [
+        "\"retired_credits\"",
+        "tmp%3#0"
+      ]
+    },
+    "217": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "218": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "219": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "version": 3,
+  "sources": [
+    "../../retirement_manager/contract.py"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;AAQ0D;AAAf;AAAnC;AAJR;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AASQ;AAA6B;AAA7B;AAHH;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAGG;AAAA;AACA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAJH;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "algopy.arc4.ARC4Contract.approval_program",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1"
+    },
+    "5": {
+      "op": "bytecblock \"retired_credits\""
+    },
+    "23": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "25": {
+      "op": "bnz main_after_if_else@2",
+      "stack_out": []
+    },
+    "28": {
+      "op": "bytec_0 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\""
+      ],
+      "stack_out": [
+        "\"retired_credits\""
+      ]
+    },
+    "29": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"retired_credits\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"retired_credits\"",
+        "0"
+      ]
+    },
+    "30": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "31": {
+      "block": "main_after_if_else@2",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "33": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "34": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "35": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "37": {
+      "op": "bz main_create_NoOp@7",
+      "stack_out": []
+    },
+    "40": {
+      "op": "pushbytes 0x6d10009f // method \"retire_credits(uint64)void\"",
+      "defined_out": [
+        "Method(retire_credits(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(retire_credits(uint64)void)"
+      ]
+    },
+    "46": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(retire_credits(uint64)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(retire_credits(uint64)void)",
+        "tmp%4#0"
+      ]
+    },
+    "49": {
+      "op": "match retire_credits",
+      "stack_out": []
+    },
+    "53": {
+      "op": "err"
+    },
+    "54": {
+      "block": "main_create_NoOp@7",
+      "stack_in": [],
+      "op": "pushbytes 0x4c5c61ba // method \"create()void\"",
+      "defined_out": [
+        "Method(create()void)"
+      ],
+      "stack_out": [
+        "Method(create()void)"
+      ]
+    },
+    "60": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ]
+    },
+    "63": {
+      "op": "match main_create_route@8",
+      "stack_out": []
+    },
+    "67": {
+      "op": "err"
+    },
+    "68": {
+      "block": "main_create_route@8",
+      "stack_in": [],
+      "op": "bytec_0 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\""
+      ],
+      "stack_out": [
+        "\"retired_credits\""
+      ]
+    },
+    "69": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"retired_credits\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"retired_credits\"",
+        "0"
+      ]
+    },
+    "70": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "71": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "72": {
+      "op": "return",
+      "stack_out": []
+    },
+    "73": {
+      "subroutine": "smart_contracts.retirement_manager.contract.RetirementManager.retire_credits[routing]",
+      "params": {},
+      "block": "retire_credits",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "76": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "77": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "78": {
+      "op": "pushint 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "80": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "81": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "82": {
+      "op": "btoi",
+      "defined_out": [
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "83": {
+      "op": "dup",
+      "defined_out": [
+        "amount#0",
+        "amount#0 (copy)"
+      ],
+      "stack_out": [
+        "amount#0",
+        "amount#0 (copy)"
+      ]
+    },
+    "84": {
+      "error": "Amount must be greater than zero",
+      "op": "assert // Amount must be greater than zero",
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "85": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0"
+      ]
+    },
+    "86": {
+      "op": "bytec_0 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\"",
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0",
+        "\"retired_credits\""
+      ]
+    },
+    "87": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amount#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "88": {
+      "error": "check self.retired_credits exists",
+      "op": "assert // check self.retired_credits exists",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "89": {
+      "op": "+",
+      "defined_out": [
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "90": {
+      "op": "bytec_0 // \"retired_credits\"",
+      "stack_out": [
+        "tmp%1#1",
+        "\"retired_credits\""
+      ]
+    },
+    "91": {
+      "op": "swap",
+      "stack_out": [
+        "\"retired_credits\"",
+        "tmp%1#1"
+      ]
+    },
+    "92": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "93": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "94": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}
