@@ -1,0 +1,227 @@
+/* ─── Page-specific Styles ───────────────────────────────────── */
+
+/* ── Config Notice ───────────────────────────────────────────── */
+.config-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-6);
+    border-left: 3px solid var(--c-warning);
+}
+
+.config-notice .config-icon {
+    font-size: 1.5rem;
+}
+
+.config-notice strong {
+    display: block;
+    margin-bottom: var(--sp-1);
+    color: var(--c-warning);
+}
+
+.config-notice p {
+    color: var(--c-text-secondary);
+    font-size: var(--fs-sm);
+}
+
+.config-notice code {
+    background: var(--c-bg);
+    padding: var(--sp-1) var(--sp-2);
+    border-radius: var(--r-sm);
+    font-size: var(--fs-xs);
+    color: var(--c-primary-light);
+}
+
+/* ── Dashboard ───────────────────────────────────────────────── */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-6);
+}
+
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Donut Chart ─────────────────────────────────────────────── */
+.retirement-chart {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-8);
+}
+
+.donut-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+}
+
+.donut-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.donut-progress {
+    transition: stroke-dasharray 1s var(--ease);
+}
+
+.donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-pct {
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-bold);
+    color: var(--c-primary-light);
+}
+
+.donut-label {
+    font-size: var(--fs-xs);
+    color: var(--c-text-muted);
+}
+
+.chart-legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    flex: 1;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-label {
+    font-size: var(--fs-sm);
+    color: var(--c-text-secondary);
+    flex: 1;
+}
+
+.legend-value {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+}
+
+/* ── Quick Actions ───────────────────────────────────────────── */
+.quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--c-bg);
+    border: 1px solid var(--c-border);
+    transition: all var(--t-base);
+    text-decoration: none;
+    color: inherit;
+}
+
+.action-card:hover {
+    border-color: var(--c-primary);
+    background: var(--c-primary-dim);
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    font-size: 1.3rem;
+    margin-bottom: var(--sp-2);
+}
+
+.action-title {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    margin-bottom: var(--sp-1);
+}
+
+.action-desc {
+    font-size: var(--fs-xs);
+    color: var(--c-text-muted);
+}
+
+/* ── Form Grid ───────────────────────────────────────────────── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-6);
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-desc {
+    font-size: var(--fs-sm);
+    color: var(--c-text-muted);
+    margin-bottom: var(--sp-4);
+    margin-top: calc(-1 * var(--sp-4));
+}
+
+/* ── Lookup Result ───────────────────────────────────────────── */
+.lookup-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--sp-4);
+    padding: var(--sp-4);
+    background: var(--c-bg);
+    border-radius: var(--r-md);
+    border: 1px solid var(--c-border);
+    animation: fadeIn 0.3s var(--ease) both;
+}
+
+.lookup-addr {
+    font-family: monospace;
+    font-size: var(--fs-sm);
+    color: var(--c-text-secondary);
+}
+
+.lookup-balance {
+    font-weight: var(--fw-bold);
+    color: var(--c-primary-light);
+}
+
+/* ── Progress Info ───────────────────────────────────────────── */
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--sp-3);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+}
+
+.progress-milestones {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--sp-2);
+    font-size: var(--fs-xs);
+    color: var(--c-text-muted);
+}
+
+.milestone-active {
+    color: var(--c-primary);
+    font-weight: var(--fw-semibold);
+}

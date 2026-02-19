@@ -6,26 +6,16 @@ logger = logging.getLogger(__name__)
 
 
 def deploy() -> None:
-<<<<<<<< HEAD:smart_contracts/issuer_registry/deploy_config.py
     from smart_contracts.artifacts.issuer_registry.issuer_registry_client import (
         IssuerRegistryFactory,
         IssuerRegistryMethodCallCreateParams,
-========
-    from smart_contracts.artifacts.{{ contract_name }}.{{ contract_name }}_client import (
-        {{ contract_name.split('_')|map('capitalize')|join }}Factory,
-        HelloArgs,
->>>>>>>> c9e4c155079cc6ee6c6e3f49b878ebbbc489445d:projects/Carbonx/.algokit/generators/create_contract/smart_contracts/{{ contract_name }}/deploy_config.py.j2
     )
 
     algorand = algokit_utils.AlgorandClient.from_environment()
     deployer_ = algorand.account.from_environment("DEPLOYER")
 
     factory = algorand.client.get_typed_app_factory(
-<<<<<<<< HEAD:smart_contracts/issuer_registry/deploy_config.py
         IssuerRegistryFactory, default_sender=deployer_.address
-========
-        {{ contract_name.split('_')|map('capitalize')|join }}Factory, default_sender=deployer_.address
->>>>>>>> c9e4c155079cc6ee6c6e3f49b878ebbbc489445d:projects/Carbonx/.algokit/generators/create_contract/smart_contracts/{{ contract_name }}/deploy_config.py.j2
     )
 
     app_client, result = factory.deploy(
@@ -46,14 +36,6 @@ def deploy() -> None:
             )
         )
 
-<<<<<<<< HEAD:smart_contracts/issuer_registry/deploy_config.py
     logger.info(
         f"Deployed {app_client.app_name} ({app_client.app_id}) successfully"
-========
-    name = "world"
-    response = app_client.send.hello(args=HelloArgs(name=name))
-    logger.info(
-        f"Called hello on {app_client.app_name} ({app_client.app_id}) "
-        f"with name={name}, received: {response.abi_return}"
->>>>>>>> c9e4c155079cc6ee6c6e3f49b878ebbbc489445d:projects/Carbonx/.algokit/generators/create_contract/smart_contracts/{{ contract_name }}/deploy_config.py.j2
     )
