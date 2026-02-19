@@ -19,7 +19,7 @@ from algosdk.v2client.models import SimulateTraceConfig
 import algokit_utils
 from algokit_utils import AlgorandClient as _AlgoKitAlgorandClient
 
-_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": ["OptIn"], "create": []}, "methods": [{"actions": {"call": [], "create": ["NoOp"]}, "args": [], "name": "create", "returns": {"type": "void"}, "desc": "Set the contract creator as admin.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "register_issuer", "returns": {"type": "void"}, "desc": "Register the caller as an issuer.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "account"}], "name": "approve_issuer", "returns": {"type": "void"}, "desc": "Approve a registered issuer. Admin only.", "events": [], "readonly": false, "recommendations": {}}], "name": "IssuerRegistry", "state": {"keys": {"box": {}, "global": {"admin": {"key": "YWRtaW4=", "keyType": "AVMString", "valueType": "AVMBytes"}}, "local": {"is_registered": {"key": "aXNfcmVnaXN0ZXJlZA==", "keyType": "AVMString", "valueType": "AVMUint64"}, "is_approved": {"key": "aXNfYXBwcm92ZWQ=", "keyType": "AVMString", "valueType": "AVMUint64"}}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 1, "ints": 0}, "local": {"bytes": 0, "ints": 2}}}, "structs": {}, "byteCode": {"approval": "CyACAQAmAgVhZG1pbg1pc19yZWdpc3RlcmVkMRhAAAQogABnMRtBAC0xGRREMRhBABaCAgT1WuCwBIUghAE2GgCOAgAdAC8AgARMXGG6NhoAjgEACQAxGSISMRgQQygxAGciQzEAIyljI04CTRREMQApImYiQzYaAUkVgSASRDEAIyhlRBJESSMpYyNOAk0iEkSAC2lzX2FwcHJvdmVkImYiQw==", "clear": "C4EBQw=="}, "desc": "Registry for carbon credit issuers with admin approval workflow.", "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIDAKICAgIGJ5dGVjYmxvY2sgImFkbWluIiAiaXNfcmVnaXN0ZXJlZCIKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6OQogICAgLy8gc2VsZi5hZG1pbiA9IEdsb2JhbFN0YXRlKEJ5dGVzKCksIGtleT0iYWRtaW4iKQogICAgYnl0ZWNfMCAvLyAiYWRtaW4iCiAgICBwdXNoYnl0ZXMgMHgKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgSXNzdWVyUmVnaXN0cnkoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX29wdF9pbkAxMwogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYnogbWFpbl9jcmVhdGVfTm9PcEA5CiAgICBwdXNoYnl0ZXNzIDB4ZjU1YWUwYjAgMHg4NTIwODQwMSAvLyBtZXRob2QgInJlZ2lzdGVyX2lzc3Vlcigpdm9pZCIsIG1ldGhvZCAiYXBwcm92ZV9pc3N1ZXIoYWRkcmVzcyl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggcmVnaXN0ZXJfaXNzdWVyIGFwcHJvdmVfaXNzdWVyCiAgICBlcnIKCm1haW5fY3JlYXRlX05vT3BAOToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgSXNzdWVyUmVnaXN0cnkoQVJDNENvbnRyYWN0KToKICAgIHB1c2hieXRlcyAweDRjNWM2MWJhIC8vIG1ldGhvZCAiY3JlYXRlKCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggY3JlYXRlCiAgICBlcnIKCm1haW5fb3B0X2luQDEzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weToxOAogICAgLy8gQGJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIk9wdEluIl0pCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBpbnRjXzAgLy8gT3B0SW4KICAgID09CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgJiYKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5pc3N1ZXJfcmVnaXN0cnkuY29udHJhY3QuSXNzdWVyUmVnaXN0cnkuY3JlYXRlW3JvdXRpbmddKCkgLT4gdm9pZDoKY3JlYXRlOgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weToxNgogICAgLy8gc2VsZi5hZG1pbi52YWx1ZSA9IFR4bi5zZW5kZXIuYnl0ZXMKICAgIGJ5dGVjXzAgLy8gImFkbWluIgogICAgdHhuIFNlbmRlcgogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6MTMKICAgIC8vIEBhYmltZXRob2QoY3JlYXRlPSJyZXF1aXJlIikKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMuaXNzdWVyX3JlZ2lzdHJ5LmNvbnRyYWN0Lklzc3VlclJlZ2lzdHJ5LnJlZ2lzdGVyX2lzc3Vlcltyb3V0aW5nXSgpIC0+IHZvaWQ6CnJlZ2lzdGVyX2lzc3VlcjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6MjYKICAgIC8vIGN1cnJlbnQgPSBzZWxmLmlzX3JlZ2lzdGVyZWQuZ2V0KFR4bi5zZW5kZXIsIGRlZmF1bHQ9VUludDY0KDApKQogICAgdHhuIFNlbmRlcgogICAgaW50Y18xIC8vIDAKICAgIGJ5dGVjXzEgLy8gImlzX3JlZ2lzdGVyZWQiCiAgICBhcHBfbG9jYWxfZ2V0X2V4CiAgICBpbnRjXzEgLy8gMAogICAgY292ZXIgMgogICAgc2VsZWN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjI3CiAgICAvLyBhc3NlcnQgY3VycmVudCA9PSAwLCAiQWxyZWFkeSByZWdpc3RlcmVkIgogICAgIQogICAgYXNzZXJ0IC8vIEFscmVhZHkgcmVnaXN0ZXJlZAogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weToyOAogICAgLy8gc2VsZi5pc19yZWdpc3RlcmVkW1R4bi5zZW5kZXJdID0gVUludDY0KDEpCiAgICB0eG4gU2VuZGVyCiAgICBieXRlY18xIC8vICJpc19yZWdpc3RlcmVkIgogICAgaW50Y18wIC8vIDEKICAgIGFwcF9sb2NhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6MjMKICAgIC8vIEBhYmltZXRob2QoKQogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5pc3N1ZXJfcmVnaXN0cnkuY29udHJhY3QuSXNzdWVyUmVnaXN0cnkuYXBwcm92ZV9pc3N1ZXJbcm91dGluZ10oKSAtPiB2b2lkOgphcHByb3ZlX2lzc3VlcjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6MzAKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIHB1c2hpbnQgMzIKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQuc3RhdGljX2FycmF5PGFyYzQudWludDgsIDMyPgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTozMwogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIuYnl0ZXMgPT0gc2VsZi5hZG1pbi52YWx1ZSwgIk9ubHkgYWRtaW4gY2FuIGFwcHJvdmUiCiAgICB0eG4gU2VuZGVyCiAgICBpbnRjXzEgLy8gMAogICAgYnl0ZWNfMCAvLyAiYWRtaW4iCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYuYWRtaW4gZXhpc3RzCiAgICA9PQogICAgYXNzZXJ0IC8vIE9ubHkgYWRtaW4gY2FuIGFwcHJvdmUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6MzQKICAgIC8vIHJlZ2lzdGVyZWQgPSBzZWxmLmlzX3JlZ2lzdGVyZWQuZ2V0KGFjY291bnQsIGRlZmF1bHQ9VUludDY0KDApKQogICAgZHVwCiAgICBpbnRjXzEgLy8gMAogICAgYnl0ZWNfMSAvLyAiaXNfcmVnaXN0ZXJlZCIKICAgIGFwcF9sb2NhbF9nZXRfZXgKICAgIGludGNfMSAvLyAwCiAgICBjb3ZlciAyCiAgICBzZWxlY3QKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6MzUKICAgIC8vIGFzc2VydCByZWdpc3RlcmVkID09IDEsICJBY2NvdW50IG5vdCByZWdpc3RlcmVkIgogICAgaW50Y18wIC8vIDEKICAgID09CiAgICBhc3NlcnQgLy8gQWNjb3VudCBub3QgcmVnaXN0ZXJlZAogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTozNgogICAgLy8gc2VsZi5pc19hcHByb3ZlZFthY2NvdW50XSA9IFVJbnQ2NCgxKQogICAgcHVzaGJ5dGVzICJpc19hcHByb3ZlZCIKICAgIGludGNfMCAvLyAxCiAgICBhcHBfbG9jYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjMwCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4K", "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [145], "errorMessage": "Account not registered"}, {"pc": [110], "errorMessage": "Already registered"}, {"pc": [134], "errorMessage": "Only admin can approve"}, {"pc": [132], "errorMessage": "check self.admin exists"}, {"pc": [126], "errorMessage": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
+_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": ["OptIn"], "create": []}, "methods": [{"actions": {"call": [], "create": ["NoOp"]}, "args": [], "name": "create", "returns": {"type": "void"}, "desc": "Set the contract creator as admin.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "register_issuer", "returns": {"type": "void"}, "desc": "Register the caller as an issuer.\nReverts if the caller is already registered.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "account"}], "name": "approve_issuer", "returns": {"type": "void"}, "desc": "Approve a registered issuer. Admin only.\nThe target account must have registered first.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "account"}], "name": "revoke_issuer", "returns": {"type": "void"}, "desc": "Revoke an approved issuer. Admin only.\nSets the account's approved flag back to 0 and decrements the counter.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "account"}], "name": "get_issuer_status", "returns": {"type": "uint64", "desc": "0 \u2013 not registered 1 \u2013 registered but not approved 2 \u2013 registered and approved"}, "desc": "Return the approval status for the given account.", "events": [], "readonly": true, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "get_approved_count", "returns": {"type": "uint64"}, "desc": "Return the total number of currently approved issuers.", "events": [], "readonly": true, "recommendations": {}}], "name": "IssuerRegistry", "state": {"keys": {"box": {}, "global": {"admin": {"key": "YWRtaW4=", "keyType": "AVMString", "valueType": "AVMBytes"}, "approved_count": {"key": "YXBwcm92ZWRfY291bnQ=", "keyType": "AVMString", "valueType": "AVMUint64"}}, "local": {"is_registered": {"key": "aXNfcmVnaXN0ZXJlZA==", "keyType": "AVMString", "valueType": "AVMUint64"}, "is_approved": {"key": "aXNfYXBwcm92ZWQ=", "keyType": "AVMString", "valueType": "AVMUint64"}}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 1, "ints": 1}, "local": {"bytes": 0, "ints": 2}}}, "structs": {}, "byteCode": {"approval": "CyADAAEgJgUOYXBwcm92ZWRfY291bnQLaXNfYXBwcm92ZWQFYWRtaW4NaXNfcmVnaXN0ZXJlZAQVH3x1MRhAAAcqgABnKCJnMRtBAEIxGRREMRhBACuCBQT1WuCwBIUghAEEje0IKgRKmL40BKM0WJY2GgCOBQAgADIAZQCOAMAAgARMXGG6NhoAjgEACQAxGSMSMRgQQyoxAGcoImcjQzEAIitjIk4CTRREMQArI2YjQzYaAUkVJBJEMQAiKmVEEkRJIitjIk4CTSMSREkiKWMiTgJNFEQpI2YiKGVEIwgoTGcjQzYaAUkVJBJEMQAiKmVEEkRJIiljIk4CTSMSRCkiZiIoZUQjCShMZyNDNhoBRwIVJBJEIitjIk4CTUAACSIWJwRMULAjQ0kiKWMiTgJNIxJBAAWBAkL/5iNC/+IiKGVEFicETFCwI0M=", "clear": "C4EBQw=="}, "desc": "Registry for carbon credit issuers with admin approval workflow.\n\n    Global state:\n        admin           \u2013 address of the contract administrator\n        approved_count  \u2013 total number of currently approved issuers\n\n    Local state (per account):\n        is_registered   \u2013 1 if the account has registered as an issuer\n        is_approved     \u2013 1 if the account has been approved by admin\n    ", "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAwIDEgMzIKICAgIGJ5dGVjYmxvY2sgImFwcHJvdmVkX2NvdW50IiAiaXNfYXBwcm92ZWQiICJhZG1pbiIgImlzX3JlZ2lzdGVyZWQiIDB4MTUxZjdjNzUKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6MTgKICAgIC8vIHNlbGYuYWRtaW4gPSBHbG9iYWxTdGF0ZShCeXRlcygpLCBrZXk9ImFkbWluIikKICAgIGJ5dGVjXzIgLy8gImFkbWluIgogICAgcHVzaGJ5dGVzIDB4CiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weToxOQogICAgLy8gc2VsZi5hcHByb3ZlZF9jb3VudCA9IEdsb2JhbFN0YXRlKFVJbnQ2NCgwKSwga2V5PSJhcHByb3ZlZF9jb3VudCIpCiAgICBieXRlY18wIC8vICJhcHByb3ZlZF9jb3VudCIKICAgIGludGNfMCAvLyAwCiAgICBhcHBfZ2xvYmFsX3B1dAoKbWFpbl9hZnRlcl9pZl9lbHNlQDI6CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjUKICAgIC8vIGNsYXNzIElzc3VlclJlZ2lzdHJ5KEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9vcHRfaW5AMTYKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJ6IG1haW5fY3JlYXRlX05vT3BAMTIKICAgIHB1c2hieXRlc3MgMHhmNTVhZTBiMCAweDg1MjA4NDAxIDB4OGRlZDA4MmEgMHg0YTk4YmUzNCAweGEzMzQ1ODk2IC8vIG1ldGhvZCAicmVnaXN0ZXJfaXNzdWVyKCl2b2lkIiwgbWV0aG9kICJhcHByb3ZlX2lzc3VlcihhZGRyZXNzKXZvaWQiLCBtZXRob2QgInJldm9rZV9pc3N1ZXIoYWRkcmVzcyl2b2lkIiwgbWV0aG9kICJnZXRfaXNzdWVyX3N0YXR1cyhhZGRyZXNzKXVpbnQ2NCIsIG1ldGhvZCAiZ2V0X2FwcHJvdmVkX2NvdW50KCl1aW50NjQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCByZWdpc3Rlcl9pc3N1ZXIgYXBwcm92ZV9pc3N1ZXIgcmV2b2tlX2lzc3VlciBnZXRfaXNzdWVyX3N0YXR1cyBnZXRfYXBwcm92ZWRfY291bnQKICAgIGVycgoKbWFpbl9jcmVhdGVfTm9PcEAxMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgSXNzdWVyUmVnaXN0cnkoQVJDNENvbnRyYWN0KToKICAgIHB1c2hieXRlcyAweDRjNWM2MWJhIC8vIG1ldGhvZCAiY3JlYXRlKCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggY3JlYXRlCiAgICBlcnIKCm1haW5fb3B0X2luQDE2OgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weToyOQogICAgLy8gQGJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIk9wdEluIl0pCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBpbnRjXzEgLy8gT3B0SW4KICAgID09CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgJiYKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5pc3N1ZXJfcmVnaXN0cnkuY29udHJhY3QuSXNzdWVyUmVnaXN0cnkuY3JlYXRlW3JvdXRpbmddKCkgLT4gdm9pZDoKY3JlYXRlOgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weToyNgogICAgLy8gc2VsZi5hZG1pbi52YWx1ZSA9IFR4bi5zZW5kZXIuYnl0ZXMKICAgIGJ5dGVjXzIgLy8gImFkbWluIgogICAgdHhuIFNlbmRlcgogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6MjcKICAgIC8vIHNlbGYuYXBwcm92ZWRfY291bnQudmFsdWUgPSBVSW50NjQoMCkKICAgIGJ5dGVjXzAgLy8gImFwcHJvdmVkX2NvdW50IgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjIzCiAgICAvLyBAYWJpbWV0aG9kKGNyZWF0ZT0icmVxdWlyZSIpCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzLmlzc3Vlcl9yZWdpc3RyeS5jb250cmFjdC5Jc3N1ZXJSZWdpc3RyeS5yZWdpc3Rlcl9pc3N1ZXJbcm91dGluZ10oKSAtPiB2b2lkOgpyZWdpc3Rlcl9pc3N1ZXI6CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjQwCiAgICAvLyBjdXJyZW50ID0gc2VsZi5pc19yZWdpc3RlcmVkLmdldChUeG4uc2VuZGVyLCBkZWZhdWx0PVVJbnQ2NCgwKSkKICAgIHR4biBTZW5kZXIKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18zIC8vICJpc19yZWdpc3RlcmVkIgogICAgYXBwX2xvY2FsX2dldF9leAogICAgaW50Y18wIC8vIDAKICAgIGNvdmVyIDIKICAgIHNlbGVjdAogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo0MQogICAgLy8gYXNzZXJ0IGN1cnJlbnQgPT0gMCwgIkFscmVhZHkgcmVnaXN0ZXJlZCIKICAgICEKICAgIGFzc2VydCAvLyBBbHJlYWR5IHJlZ2lzdGVyZWQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NDIKICAgIC8vIHNlbGYuaXNfcmVnaXN0ZXJlZFtUeG4uc2VuZGVyXSA9IFVJbnQ2NCgxKQogICAgdHhuIFNlbmRlcgogICAgYnl0ZWNfMyAvLyAiaXNfcmVnaXN0ZXJlZCIKICAgIGludGNfMSAvLyAxCiAgICBhcHBfbG9jYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjM0CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMuaXNzdWVyX3JlZ2lzdHJ5LmNvbnRyYWN0Lklzc3VlclJlZ2lzdHJ5LmFwcHJvdmVfaXNzdWVyW3JvdXRpbmddKCkgLT4gdm9pZDoKYXBwcm92ZV9pc3N1ZXI6CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjQ0CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzIgLy8gMzIKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQuc3RhdGljX2FycmF5PGFyYzQudWludDgsIDMyPgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo1MAogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIuYnl0ZXMgPT0gc2VsZi5hZG1pbi52YWx1ZSwgIk9ubHkgYWRtaW4gY2FuIGFwcHJvdmUiCiAgICB0eG4gU2VuZGVyCiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMiAvLyAiYWRtaW4iCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYuYWRtaW4gZXhpc3RzCiAgICA9PQogICAgYXNzZXJ0IC8vIE9ubHkgYWRtaW4gY2FuIGFwcHJvdmUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NTEKICAgIC8vIHJlZ2lzdGVyZWQgPSBzZWxmLmlzX3JlZ2lzdGVyZWQuZ2V0KGFjY291bnQsIGRlZmF1bHQ9VUludDY0KDApKQogICAgZHVwCiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMyAvLyAiaXNfcmVnaXN0ZXJlZCIKICAgIGFwcF9sb2NhbF9nZXRfZXgKICAgIGludGNfMCAvLyAwCiAgICBjb3ZlciAyCiAgICBzZWxlY3QKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NTIKICAgIC8vIGFzc2VydCByZWdpc3RlcmVkID09IDEsICJBY2NvdW50IG5vdCByZWdpc3RlcmVkIgogICAgaW50Y18xIC8vIDEKICAgID09CiAgICBhc3NlcnQgLy8gQWNjb3VudCBub3QgcmVnaXN0ZXJlZAogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo1MwogICAgLy8gYWxyZWFkeV9hcHByb3ZlZCA9IHNlbGYuaXNfYXBwcm92ZWQuZ2V0KGFjY291bnQsIGRlZmF1bHQ9VUludDY0KDApKQogICAgZHVwCiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMSAvLyAiaXNfYXBwcm92ZWQiCiAgICBhcHBfbG9jYWxfZ2V0X2V4CiAgICBpbnRjXzAgLy8gMAogICAgY292ZXIgMgogICAgc2VsZWN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjU0CiAgICAvLyBhc3NlcnQgYWxyZWFkeV9hcHByb3ZlZCA9PSAwLCAiQWNjb3VudCBhbHJlYWR5IGFwcHJvdmVkIgogICAgIQogICAgYXNzZXJ0IC8vIEFjY291bnQgYWxyZWFkeSBhcHByb3ZlZAogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo1NQogICAgLy8gc2VsZi5pc19hcHByb3ZlZFthY2NvdW50XSA9IFVJbnQ2NCgxKQogICAgYnl0ZWNfMSAvLyAiaXNfYXBwcm92ZWQiCiAgICBpbnRjXzEgLy8gMQogICAgYXBwX2xvY2FsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo1NgogICAgLy8gc2VsZi5hcHByb3ZlZF9jb3VudC52YWx1ZSArPSBVSW50NjQoMSkKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18wIC8vICJhcHByb3ZlZF9jb3VudCIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5hcHByb3ZlZF9jb3VudCBleGlzdHMKICAgIGludGNfMSAvLyAxCiAgICArCiAgICBieXRlY18wIC8vICJhcHByb3ZlZF9jb3VudCIKICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjQ0CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMuaXNzdWVyX3JlZ2lzdHJ5LmNvbnRyYWN0Lklzc3VlclJlZ2lzdHJ5LnJldm9rZV9pc3N1ZXJbcm91dGluZ10oKSAtPiB2b2lkOgpyZXZva2VfaXNzdWVyOgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo1OAogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBkdXAKICAgIGxlbgogICAgaW50Y18yIC8vIDMyCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnN0YXRpY19hcnJheTxhcmM0LnVpbnQ4LCAzMj4KICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NjQKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyLmJ5dGVzID09IHNlbGYuYWRtaW4udmFsdWUsICJPbmx5IGFkbWluIGNhbiByZXZva2UiCiAgICB0eG4gU2VuZGVyCiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMiAvLyAiYWRtaW4iCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYuYWRtaW4gZXhpc3RzCiAgICA9PQogICAgYXNzZXJ0IC8vIE9ubHkgYWRtaW4gY2FuIHJldm9rZQogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo2NQogICAgLy8gYXBwcm92ZWQgPSBzZWxmLmlzX2FwcHJvdmVkLmdldChhY2NvdW50LCBkZWZhdWx0PVVJbnQ2NCgwKSkKICAgIGR1cAogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzEgLy8gImlzX2FwcHJvdmVkIgogICAgYXBwX2xvY2FsX2dldF9leAogICAgaW50Y18wIC8vIDAKICAgIGNvdmVyIDIKICAgIHNlbGVjdAogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo2NgogICAgLy8gYXNzZXJ0IGFwcHJvdmVkID09IDEsICJBY2NvdW50IG5vdCBhcHByb3ZlZCIKICAgIGludGNfMSAvLyAxCiAgICA9PQogICAgYXNzZXJ0IC8vIEFjY291bnQgbm90IGFwcHJvdmVkCiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjY3CiAgICAvLyBzZWxmLmlzX2FwcHJvdmVkW2FjY291bnRdID0gVUludDY0KDApCiAgICBieXRlY18xIC8vICJpc19hcHByb3ZlZCIKICAgIGludGNfMCAvLyAwCiAgICBhcHBfbG9jYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjY4CiAgICAvLyBzZWxmLmFwcHJvdmVkX2NvdW50LnZhbHVlIC09IFVJbnQ2NCgxKQogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzAgLy8gImFwcHJvdmVkX2NvdW50IgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmFwcHJvdmVkX2NvdW50IGV4aXN0cwogICAgaW50Y18xIC8vIDEKICAgIC0KICAgIGJ5dGVjXzAgLy8gImFwcHJvdmVkX2NvdW50IgogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NTgKICAgIC8vIEBhYmltZXRob2QoKQogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5pc3N1ZXJfcmVnaXN0cnkuY29udHJhY3QuSXNzdWVyUmVnaXN0cnkuZ2V0X2lzc3Vlcl9zdGF0dXNbcm91dGluZ10oKSAtPiB2b2lkOgpnZXRfaXNzdWVyX3N0YXR1czoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NzAKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cG4gMgogICAgbGVuCiAgICBpbnRjXzIgLy8gMzIKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQuc3RhdGljX2FycmF5PGFyYzQudWludDgsIDMyPgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo3OQogICAgLy8gcmVnaXN0ZXJlZCA9IHNlbGYuaXNfcmVnaXN0ZXJlZC5nZXQoYWNjb3VudCwgZGVmYXVsdD1VSW50NjQoMCkpCiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMyAvLyAiaXNfcmVnaXN0ZXJlZCIKICAgIGFwcF9sb2NhbF9nZXRfZXgKICAgIGludGNfMCAvLyAwCiAgICBjb3ZlciAyCiAgICBzZWxlY3QKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6ODAKICAgIC8vIGlmIHJlZ2lzdGVyZWQgPT0gMDoKICAgIGJueiBnZXRfaXNzdWVyX3N0YXR1c19hZnRlcl9pZl9lbHNlQDMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6ODEKICAgIC8vIHJldHVybiBVSW50NjQoMCkKICAgIGludGNfMCAvLyAwCgpnZXRfaXNzdWVyX3N0YXR1c19hZnRlcl9pbmxpbmVkX3NtYXJ0X2NvbnRyYWN0cy5pc3N1ZXJfcmVnaXN0cnkuY29udHJhY3QuSXNzdWVyUmVnaXN0cnkuZ2V0X2lzc3Vlcl9zdGF0dXNANjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6NzAKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIGl0b2IKICAgIGJ5dGVjIDQgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCmdldF9pc3N1ZXJfc3RhdHVzX2FmdGVyX2lmX2Vsc2VAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6ODIKICAgIC8vIGFwcHJvdmVkID0gc2VsZi5pc19hcHByb3ZlZC5nZXQoYWNjb3VudCwgZGVmYXVsdD1VSW50NjQoMCkpCiAgICBkdXAKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18xIC8vICJpc19hcHByb3ZlZCIKICAgIGFwcF9sb2NhbF9nZXRfZXgKICAgIGludGNfMCAvLyAwCiAgICBjb3ZlciAyCiAgICBzZWxlY3QKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6ODMKICAgIC8vIGlmIGFwcHJvdmVkID09IDE6CiAgICBpbnRjXzEgLy8gMQogICAgPT0KICAgIGJ6IGdldF9pc3N1ZXJfc3RhdHVzX2FmdGVyX2lmX2Vsc2VANQogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo4NAogICAgLy8gcmV0dXJuIFVJbnQ2NCgyKQogICAgcHVzaGludCAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5OjcwCiAgICAvLyBAYWJpbWV0aG9kKHJlYWRvbmx5PVRydWUpCiAgICBiIGdldF9pc3N1ZXJfc3RhdHVzX2FmdGVyX2lubGluZWRfc21hcnRfY29udHJhY3RzLmlzc3Vlcl9yZWdpc3RyeS5jb250cmFjdC5Jc3N1ZXJSZWdpc3RyeS5nZXRfaXNzdWVyX3N0YXR1c0A2CgpnZXRfaXNzdWVyX3N0YXR1c19hZnRlcl9pZl9lbHNlQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvaXNzdWVyX3JlZ2lzdHJ5L2NvbnRyYWN0LnB5Ojg1CiAgICAvLyByZXR1cm4gVUludDY0KDEpCiAgICBpbnRjXzEgLy8gMQogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo3MAogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgYiBnZXRfaXNzdWVyX3N0YXR1c19hZnRlcl9pbmxpbmVkX3NtYXJ0X2NvbnRyYWN0cy5pc3N1ZXJfcmVnaXN0cnkuY29udHJhY3QuSXNzdWVyUmVnaXN0cnkuZ2V0X2lzc3Vlcl9zdGF0dXNANgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5pc3N1ZXJfcmVnaXN0cnkuY29udHJhY3QuSXNzdWVyUmVnaXN0cnkuZ2V0X2FwcHJvdmVkX2NvdW50W3JvdXRpbmddKCkgLT4gdm9pZDoKZ2V0X2FwcHJvdmVkX2NvdW50OgogICAgLy8gc21hcnRfY29udHJhY3RzL2lzc3Vlcl9yZWdpc3RyeS9jb250cmFjdC5weTo5MAogICAgLy8gcmV0dXJuIHNlbGYuYXBwcm92ZWRfY291bnQudmFsdWUKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18wIC8vICJhcHByb3ZlZF9jb3VudCIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5hcHByb3ZlZF9jb3VudCBleGlzdHMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9pc3N1ZXJfcmVnaXN0cnkvY29udHJhY3QucHk6ODcKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIGl0b2IKICAgIGJ5dGVjIDQgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4K", "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [214], "errorMessage": "Account already approved"}, {"pc": [255], "errorMessage": "Account not approved"}, {"pc": [204], "errorMessage": "Account not registered"}, {"pc": [170], "errorMessage": "Already registered"}, {"pc": [193], "errorMessage": "Only admin can approve"}, {"pc": [244], "errorMessage": "Only admin can revoke"}, {"pc": [191, 242], "errorMessage": "check self.admin exists"}, {"pc": [221, 262, 323], "errorMessage": "check self.approved_count exists"}, {"pc": [185, 236, 278], "errorMessage": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
 APP_SPEC = algokit_utils.Arc56Contract.from_json(_APP_SPEC_JSON)
 
 def _parse_abi_args(args: object | None = None) -> list[object] | None:
@@ -73,6 +73,24 @@ class ApproveIssuerArgs:
     def abi_method_signature(self) -> str:
         return "approve_issuer(address)void"
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class RevokeIssuerArgs:
+    """Dataclass for revoke_issuer arguments"""
+    account: str
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "revoke_issuer(address)void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class GetIssuerStatusArgs:
+    """Dataclass for get_issuer_status arguments"""
+    account: str
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "get_issuer_status(address)uint64"
+
 
 class _IssuerRegistryOptIn:
     def __init__(self, app_client: algokit_utils.AppClient):
@@ -114,6 +132,43 @@ class IssuerRegistryParams:
             **dataclasses.asdict(params),
             "method": "approve_issuer(address)void",
             "args": method_args,
+        }))
+
+    def revoke_issuer(
+        self,
+        args: tuple[str] | RevokeIssuerArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "revoke_issuer(address)void",
+            "args": method_args,
+        }))
+
+    def get_issuer_status(
+        self,
+        args: tuple[str] | GetIssuerStatusArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_issuer_status(address)uint64",
+            "args": method_args,
+        }))
+
+    def get_approved_count(
+        self,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+    
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_approved_count()uint64",
         }))
 
     def create(
@@ -176,6 +231,43 @@ class IssuerRegistryCreateTransactionParams:
             **dataclasses.asdict(params),
             "method": "approve_issuer(address)void",
             "args": method_args,
+        }))
+
+    def revoke_issuer(
+        self,
+        args: tuple[str] | RevokeIssuerArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "revoke_issuer(address)void",
+            "args": method_args,
+        }))
+
+    def get_issuer_status(
+        self,
+        args: tuple[str] | GetIssuerStatusArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_issuer_status(address)uint64",
+            "args": method_args,
+        }))
+
+    def get_approved_count(
+        self,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+    
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_approved_count()uint64",
         }))
 
     def create(
@@ -255,6 +347,52 @@ class IssuerRegistrySend:
         parsed_response = response
         return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
 
+    def revoke_issuer(
+        self,
+        args: tuple[str] | RevokeIssuerArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "revoke_issuer(address)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def get_issuer_status(
+        self,
+        args: tuple[str] | GetIssuerStatusArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[int]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_issuer_status(address)uint64",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[int], parsed_response)
+
+    def get_approved_count(
+        self,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[int]:
+    
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_approved_count()uint64",
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[int], parsed_response)
+
     def create(
         self,
         params: algokit_utils.CommonAppCallParams | None = None,
@@ -283,6 +421,7 @@ class IssuerRegistrySend:
 class GlobalStateValue(typing.TypedDict):
     """Shape of global_state state key values"""
     admin: bytes
+    approved_count: int
 
 class LocalStateValue(typing.TypedDict):
     """Shape of local_state state key values"""
@@ -338,6 +477,14 @@ class _GlobalState:
         if isinstance(value, dict) and "AVMBytes" in self._struct_classes:
             return _init_dataclass(self._struct_classes["AVMBytes"], value)  # type: ignore
         return typing.cast(bytes, value)
+
+    @property
+    def approved_count(self) -> int:
+        """Get the current value of the approved_count key in global_state state"""
+        value = self.app_client.state.global_state.get_value("approved_count")
+        if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
+        return typing.cast(int, value)
 
 class _LocalState:
     def __init__(self, app_client: algokit_utils.AppClient, address: str):
@@ -536,6 +683,24 @@ class IssuerRegistryClient:
     @typing.overload
     def decode_return_value(
         self,
+        method: typing.Literal["revoke_issuer(address)void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["get_issuer_status(address)uint64"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> int | None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["get_approved_count()uint64"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> int | None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
         method: typing.Literal["create()void"],
         return_value: algokit_utils.ABIReturn | None
     ) -> None: ...
@@ -550,7 +715,7 @@ class IssuerRegistryClient:
         self,
         method: str,
         return_value: algokit_utils.ABIReturn | None
-    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None:
+    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None | int:
         """Decode ABI return value for the given method."""
         if return_value is None:
             return None
@@ -773,6 +938,65 @@ class IssuerRegistryFactoryCreateParams:
             compilation_params=compilation_params
         )
 
+    def revoke_issuer(
+        self,
+        args: tuple[str] | RevokeIssuerArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the revoke_issuer(address)void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "revoke_issuer(address)void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def get_issuer_status(
+        self,
+        args: tuple[str] | GetIssuerStatusArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the get_issuer_status(address)uint64 ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "get_issuer_status(address)uint64",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def get_approved_count(
+        self,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the get_approved_count()uint64 ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "get_approved_count()uint64",
+                "args": None,
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
     def create(
         self,
         *,
@@ -970,6 +1194,59 @@ class IssuerRegistryComposer:
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
                 "approve_issuer(address)void", v
+            )
+        )
+        return self
+
+    def revoke_issuer(
+        self,
+        args: tuple[str] | RevokeIssuerArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "IssuerRegistryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.revoke_issuer(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "revoke_issuer(address)void", v
+            )
+        )
+        return self
+
+    def get_issuer_status(
+        self,
+        args: tuple[str] | GetIssuerStatusArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "IssuerRegistryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.get_issuer_status(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "get_issuer_status(address)uint64", v
+            )
+        )
+        return self
+
+    def get_approved_count(
+        self,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "IssuerRegistryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.get_approved_count(
+                
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "get_approved_count()uint64", v
             )
         )
         return self

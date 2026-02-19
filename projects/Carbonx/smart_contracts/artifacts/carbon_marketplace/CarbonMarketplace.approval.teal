@@ -3,13 +3,18 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
-    bytecblock "total_credits" "credits_minted"
+    intcblock 0 1 8
+    bytecblock "total_credits" "retired_credits" "credits_minted" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/carbon_marketplace/contract.py:9
+    // smart_contracts/carbon_marketplace/contract.py:17
     // self.total_credits = GlobalState(UInt64(0), key="total_credits")
     bytec_0 // "total_credits"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/carbon_marketplace/contract.py:18
+    // self.retired_credits = GlobalState(UInt64(0), key="retired_credits")
+    bytec_1 // "retired_credits"
     intc_0 // 0
     app_global_put
 
@@ -17,38 +22,27 @@ main_after_if_else@2:
     // smart_contracts/carbon_marketplace/contract.py:5
     // class CarbonMarketplace(ARC4Contract):
     txn NumAppArgs
-    bz main_opt_in@12
+    bz main_opt_in@16
     txn OnCompletion
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@8
-    pushbytes 0x29a51908 // method "mint_credits(uint64)void"
+    bz main_create_NoOp@12
+    pushbytess 0x29a51908 0x6d10009f 0x8de7ac21 0x092f5ad1 0x14091952 // method "mint_credits(uint64)void", method "retire_credits(uint64)void", method "get_credits(address)uint64", method "get_total_credits()uint64", method "get_retired_credits()uint64"
     txna ApplicationArgs 0
-    match mint_credits
+    match mint_credits retire_credits get_credits get_total_credits get_retired_credits
     err
 
-main_create_NoOp@8:
+main_create_NoOp@12:
     // smart_contracts/carbon_marketplace/contract.py:5
     // class CarbonMarketplace(ARC4Contract):
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@9
+    match create
     err
 
-main_create_route@9:
-    // smart_contracts/carbon_marketplace/contract.py:15
-    // self.total_credits.value = UInt64(0)
-    bytec_0 // "total_credits"
-    intc_0 // 0
-    app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:12
-    // @abimethod(create="require")
-    intc_1 // 1
-    return
-
-main_opt_in@12:
-    // smart_contracts/carbon_marketplace/contract.py:17
+main_opt_in@16:
+    // smart_contracts/carbon_marketplace/contract.py:27
     // @baremethod(allow_actions=["OptIn"])
     txn OnCompletion
     intc_1 // OptIn
@@ -58,22 +52,46 @@ main_opt_in@12:
     return
 
 
+// smart_contracts.carbon_marketplace.contract.CarbonMarketplace.create[routing]() -> void:
+create:
+    // smart_contracts/carbon_marketplace/contract.py:24
+    // self.total_credits.value = UInt64(0)
+    bytec_0 // "total_credits"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/carbon_marketplace/contract.py:25
+    // self.retired_credits.value = UInt64(0)
+    bytec_1 // "retired_credits"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/carbon_marketplace/contract.py:21
+    // @abimethod(create="require")
+    intc_1 // 1
+    return
+
+
 // smart_contracts.carbon_marketplace.contract.CarbonMarketplace.mint_credits[routing]() -> void:
 mint_credits:
-    // smart_contracts/carbon_marketplace/contract.py:22
+    // smart_contracts/carbon_marketplace/contract.py:32
     // @abimethod()
     txna ApplicationArgs 1
     dup
     len
-    pushint 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/carbon_marketplace/contract.py:25
+    // smart_contracts/carbon_marketplace/contract.py:39
+    // assert Txn.sender == Global.creator_address, "Only creator can mint credits"
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // Only creator can mint credits
+    // smart_contracts/carbon_marketplace/contract.py:40
     // assert amount > 0, "Amount must be greater than zero"
     dup
     assert // Amount must be greater than zero
-    // smart_contracts/carbon_marketplace/contract.py:26
+    // smart_contracts/carbon_marketplace/contract.py:41
     // self.total_credits.value += amount
     intc_0 // 0
     bytec_0 // "total_credits"
@@ -84,23 +102,155 @@ mint_credits:
     bytec_0 // "total_credits"
     swap
     app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:27
+    // smart_contracts/carbon_marketplace/contract.py:42
     // current = self.credits_minted.get(Txn.sender, default=UInt64(0))
     txn Sender
     intc_0 // 0
-    bytec_1 // "credits_minted"
+    bytec_2 // "credits_minted"
     app_local_get_ex
     intc_0 // 0
     cover 2
     select
-    // smart_contracts/carbon_marketplace/contract.py:28
+    // smart_contracts/carbon_marketplace/contract.py:43
     // self.credits_minted[Txn.sender] = current + amount
     +
     txn Sender
-    bytec_1 // "credits_minted"
+    bytec_2 // "credits_minted"
     uncover 2
     app_local_put
-    // smart_contracts/carbon_marketplace/contract.py:22
+    // smart_contracts/carbon_marketplace/contract.py:32
     // @abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.carbon_marketplace.contract.CarbonMarketplace.retire_credits[routing]() -> void:
+retire_credits:
+    // smart_contracts/carbon_marketplace/contract.py:45
+    // @abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/carbon_marketplace/contract.py:55
+    // assert amount > 0, "Amount must be greater than zero"
+    dup
+    assert // Amount must be greater than zero
+    // smart_contracts/carbon_marketplace/contract.py:56
+    // current = self.credits_minted.get(Txn.sender, default=UInt64(0))
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "credits_minted"
+    app_local_get_ex
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/carbon_marketplace/contract.py:57
+    // assert current >= amount, "Insufficient credits to retire"
+    dup
+    dig 2
+    >=
+    assert // Insufficient credits to retire
+    // smart_contracts/carbon_marketplace/contract.py:58
+    // self.credits_minted[Txn.sender] = current - amount
+    dig 1
+    -
+    txn Sender
+    bytec_2 // "credits_minted"
+    uncover 2
+    app_local_put
+    // smart_contracts/carbon_marketplace/contract.py:59
+    // self.total_credits.value -= amount
+    intc_0 // 0
+    bytec_0 // "total_credits"
+    app_global_get_ex
+    assert // check self.total_credits exists
+    dig 1
+    -
+    bytec_0 // "total_credits"
+    swap
+    app_global_put
+    // smart_contracts/carbon_marketplace/contract.py:60
+    // self.retired_credits.value += amount
+    intc_0 // 0
+    bytec_1 // "retired_credits"
+    app_global_get_ex
+    assert // check self.retired_credits exists
+    +
+    bytec_1 // "retired_credits"
+    swap
+    app_global_put
+    // smart_contracts/carbon_marketplace/contract.py:45
+    // @abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.carbon_marketplace.contract.CarbonMarketplace.get_credits[routing]() -> void:
+get_credits:
+    // smart_contracts/carbon_marketplace/contract.py:62
+    // @abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/carbon_marketplace/contract.py:65
+    // return self.credits_minted.get(account, default=UInt64(0))
+    intc_0 // 0
+    bytec_2 // "credits_minted"
+    app_local_get_ex
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/carbon_marketplace/contract.py:62
+    // @abimethod(readonly=True)
+    itob
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts.carbon_marketplace.contract.CarbonMarketplace.get_total_credits[routing]() -> void:
+get_total_credits:
+    // smart_contracts/carbon_marketplace/contract.py:70
+    // return self.total_credits.value
+    intc_0 // 0
+    bytec_0 // "total_credits"
+    app_global_get_ex
+    assert // check self.total_credits exists
+    // smart_contracts/carbon_marketplace/contract.py:67
+    // @abimethod(readonly=True)
+    itob
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts.carbon_marketplace.contract.CarbonMarketplace.get_retired_credits[routing]() -> void:
+get_retired_credits:
+    // smart_contracts/carbon_marketplace/contract.py:75
+    // return self.retired_credits.value
+    intc_0 // 0
+    bytec_1 // "retired_credits"
+    app_global_get_ex
+    assert // check self.retired_credits exists
+    // smart_contracts/carbon_marketplace/contract.py:72
+    // @abimethod(readonly=True)
+    itob
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
     intc_1 // 1
     return

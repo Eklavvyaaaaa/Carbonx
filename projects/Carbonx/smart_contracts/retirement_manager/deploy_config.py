@@ -9,7 +9,6 @@ def deploy() -> None:
     from smart_contracts.artifacts.retirement_manager.retirement_manager_client import (
         RetirementManagerFactory,
         RetirementManagerMethodCallCreateParams,
-        RetireCreditsArgs,
     )
 
     algorand = algokit_utils.AlgorandClient.from_environment()
@@ -37,11 +36,6 @@ def deploy() -> None:
             )
         )
 
-    # Retire some credits as a smoke test
-    response = app_client.send.retire_credits(
-        args=RetireCreditsArgs(amount=100)
-    )
     logger.info(
-        f"Retired 100 credits on {app_client.app_name} ({app_client.app_id}), "
-        f"txn: {response.tx_ids}"
+        f"Deployed {app_client.app_name} ({app_client.app_id}) successfully"
     )

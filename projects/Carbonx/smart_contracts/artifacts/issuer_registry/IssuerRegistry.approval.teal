@@ -3,32 +3,37 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
-    bytecblock "admin" "is_registered"
+    intcblock 0 1 32
+    bytecblock "approved_count" "is_approved" "admin" "is_registered" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/issuer_registry/contract.py:9
+    // smart_contracts/issuer_registry/contract.py:18
     // self.admin = GlobalState(Bytes(), key="admin")
-    bytec_0 // "admin"
+    bytec_2 // "admin"
     pushbytes 0x
+    app_global_put
+    // smart_contracts/issuer_registry/contract.py:19
+    // self.approved_count = GlobalState(UInt64(0), key="approved_count")
+    bytec_0 // "approved_count"
+    intc_0 // 0
     app_global_put
 
 main_after_if_else@2:
     // smart_contracts/issuer_registry/contract.py:5
     // class IssuerRegistry(ARC4Contract):
     txn NumAppArgs
-    bz main_opt_in@13
+    bz main_opt_in@16
     txn OnCompletion
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@9
-    pushbytess 0xf55ae0b0 0x85208401 // method "register_issuer()void", method "approve_issuer(address)void"
+    bz main_create_NoOp@12
+    pushbytess 0xf55ae0b0 0x85208401 0x8ded082a 0x4a98be34 0xa3345896 // method "register_issuer()void", method "approve_issuer(address)void", method "revoke_issuer(address)void", method "get_issuer_status(address)uint64", method "get_approved_count()uint64"
     txna ApplicationArgs 0
-    match register_issuer approve_issuer
+    match register_issuer approve_issuer revoke_issuer get_issuer_status get_approved_count
     err
 
-main_create_NoOp@9:
+main_create_NoOp@12:
     // smart_contracts/issuer_registry/contract.py:5
     // class IssuerRegistry(ARC4Contract):
     pushbytes 0x4c5c61ba // method "create()void"
@@ -36,11 +41,11 @@ main_create_NoOp@9:
     match create
     err
 
-main_opt_in@13:
-    // smart_contracts/issuer_registry/contract.py:18
+main_opt_in@16:
+    // smart_contracts/issuer_registry/contract.py:29
     // @baremethod(allow_actions=["OptIn"])
     txn OnCompletion
-    intc_0 // OptIn
+    intc_1 // OptIn
     ==
     txn ApplicationID
     &&
@@ -49,83 +54,253 @@ main_opt_in@13:
 
 // smart_contracts.issuer_registry.contract.IssuerRegistry.create[routing]() -> void:
 create:
-    // smart_contracts/issuer_registry/contract.py:16
+    // smart_contracts/issuer_registry/contract.py:26
     // self.admin.value = Txn.sender.bytes
-    bytec_0 // "admin"
+    bytec_2 // "admin"
     txn Sender
     app_global_put
-    // smart_contracts/issuer_registry/contract.py:13
+    // smart_contracts/issuer_registry/contract.py:27
+    // self.approved_count.value = UInt64(0)
+    bytec_0 // "approved_count"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/issuer_registry/contract.py:23
     // @abimethod(create="require")
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // smart_contracts.issuer_registry.contract.IssuerRegistry.register_issuer[routing]() -> void:
 register_issuer:
-    // smart_contracts/issuer_registry/contract.py:26
+    // smart_contracts/issuer_registry/contract.py:40
     // current = self.is_registered.get(Txn.sender, default=UInt64(0))
     txn Sender
-    intc_1 // 0
-    bytec_1 // "is_registered"
+    intc_0 // 0
+    bytec_3 // "is_registered"
     app_local_get_ex
-    intc_1 // 0
+    intc_0 // 0
     cover 2
     select
-    // smart_contracts/issuer_registry/contract.py:27
+    // smart_contracts/issuer_registry/contract.py:41
     // assert current == 0, "Already registered"
     !
     assert // Already registered
-    // smart_contracts/issuer_registry/contract.py:28
+    // smart_contracts/issuer_registry/contract.py:42
     // self.is_registered[Txn.sender] = UInt64(1)
     txn Sender
-    bytec_1 // "is_registered"
-    intc_0 // 1
+    bytec_3 // "is_registered"
+    intc_1 // 1
     app_local_put
-    // smart_contracts/issuer_registry/contract.py:23
+    // smart_contracts/issuer_registry/contract.py:34
     // @abimethod()
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // smart_contracts.issuer_registry.contract.IssuerRegistry.approve_issuer[routing]() -> void:
 approve_issuer:
-    // smart_contracts/issuer_registry/contract.py:30
+    // smart_contracts/issuer_registry/contract.py:44
     // @abimethod()
     txna ApplicationArgs 1
     dup
     len
-    pushint 32
+    intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/issuer_registry/contract.py:33
+    // smart_contracts/issuer_registry/contract.py:50
     // assert Txn.sender.bytes == self.admin.value, "Only admin can approve"
     txn Sender
-    intc_1 // 0
-    bytec_0 // "admin"
+    intc_0 // 0
+    bytec_2 // "admin"
     app_global_get_ex
     assert // check self.admin exists
     ==
     assert // Only admin can approve
-    // smart_contracts/issuer_registry/contract.py:34
+    // smart_contracts/issuer_registry/contract.py:51
     // registered = self.is_registered.get(account, default=UInt64(0))
     dup
-    intc_1 // 0
-    bytec_1 // "is_registered"
+    intc_0 // 0
+    bytec_3 // "is_registered"
     app_local_get_ex
-    intc_1 // 0
+    intc_0 // 0
     cover 2
     select
-    // smart_contracts/issuer_registry/contract.py:35
+    // smart_contracts/issuer_registry/contract.py:52
     // assert registered == 1, "Account not registered"
-    intc_0 // 1
+    intc_1 // 1
     ==
     assert // Account not registered
-    // smart_contracts/issuer_registry/contract.py:36
+    // smart_contracts/issuer_registry/contract.py:53
+    // already_approved = self.is_approved.get(account, default=UInt64(0))
+    dup
+    intc_0 // 0
+    bytec_1 // "is_approved"
+    app_local_get_ex
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/issuer_registry/contract.py:54
+    // assert already_approved == 0, "Account already approved"
+    !
+    assert // Account already approved
+    // smart_contracts/issuer_registry/contract.py:55
     // self.is_approved[account] = UInt64(1)
-    pushbytes "is_approved"
-    intc_0 // 1
+    bytec_1 // "is_approved"
+    intc_1 // 1
     app_local_put
-    // smart_contracts/issuer_registry/contract.py:30
+    // smart_contracts/issuer_registry/contract.py:56
+    // self.approved_count.value += UInt64(1)
+    intc_0 // 0
+    bytec_0 // "approved_count"
+    app_global_get_ex
+    assert // check self.approved_count exists
+    intc_1 // 1
+    +
+    bytec_0 // "approved_count"
+    swap
+    app_global_put
+    // smart_contracts/issuer_registry/contract.py:44
     // @abimethod()
-    intc_0 // 1
+    intc_1 // 1
+    return
+
+
+// smart_contracts.issuer_registry.contract.IssuerRegistry.revoke_issuer[routing]() -> void:
+revoke_issuer:
+    // smart_contracts/issuer_registry/contract.py:58
+    // @abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/issuer_registry/contract.py:64
+    // assert Txn.sender.bytes == self.admin.value, "Only admin can revoke"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // Only admin can revoke
+    // smart_contracts/issuer_registry/contract.py:65
+    // approved = self.is_approved.get(account, default=UInt64(0))
+    dup
+    intc_0 // 0
+    bytec_1 // "is_approved"
+    app_local_get_ex
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/issuer_registry/contract.py:66
+    // assert approved == 1, "Account not approved"
+    intc_1 // 1
+    ==
+    assert // Account not approved
+    // smart_contracts/issuer_registry/contract.py:67
+    // self.is_approved[account] = UInt64(0)
+    bytec_1 // "is_approved"
+    intc_0 // 0
+    app_local_put
+    // smart_contracts/issuer_registry/contract.py:68
+    // self.approved_count.value -= UInt64(1)
+    intc_0 // 0
+    bytec_0 // "approved_count"
+    app_global_get_ex
+    assert // check self.approved_count exists
+    intc_1 // 1
+    -
+    bytec_0 // "approved_count"
+    swap
+    app_global_put
+    // smart_contracts/issuer_registry/contract.py:58
+    // @abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.issuer_registry.contract.IssuerRegistry.get_issuer_status[routing]() -> void:
+get_issuer_status:
+    // smart_contracts/issuer_registry/contract.py:70
+    // @abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/issuer_registry/contract.py:79
+    // registered = self.is_registered.get(account, default=UInt64(0))
+    intc_0 // 0
+    bytec_3 // "is_registered"
+    app_local_get_ex
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/issuer_registry/contract.py:80
+    // if registered == 0:
+    bnz get_issuer_status_after_if_else@3
+    // smart_contracts/issuer_registry/contract.py:81
+    // return UInt64(0)
+    intc_0 // 0
+
+get_issuer_status_after_inlined_smart_contracts.issuer_registry.contract.IssuerRegistry.get_issuer_status@6:
+    // smart_contracts/issuer_registry/contract.py:70
+    // @abimethod(readonly=True)
+    itob
+    bytec 4 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+get_issuer_status_after_if_else@3:
+    // smart_contracts/issuer_registry/contract.py:82
+    // approved = self.is_approved.get(account, default=UInt64(0))
+    dup
+    intc_0 // 0
+    bytec_1 // "is_approved"
+    app_local_get_ex
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/issuer_registry/contract.py:83
+    // if approved == 1:
+    intc_1 // 1
+    ==
+    bz get_issuer_status_after_if_else@5
+    // smart_contracts/issuer_registry/contract.py:84
+    // return UInt64(2)
+    pushint 2
+    // smart_contracts/issuer_registry/contract.py:70
+    // @abimethod(readonly=True)
+    b get_issuer_status_after_inlined_smart_contracts.issuer_registry.contract.IssuerRegistry.get_issuer_status@6
+
+get_issuer_status_after_if_else@5:
+    // smart_contracts/issuer_registry/contract.py:85
+    // return UInt64(1)
+    intc_1 // 1
+    // smart_contracts/issuer_registry/contract.py:70
+    // @abimethod(readonly=True)
+    b get_issuer_status_after_inlined_smart_contracts.issuer_registry.contract.IssuerRegistry.get_issuer_status@6
+
+
+// smart_contracts.issuer_registry.contract.IssuerRegistry.get_approved_count[routing]() -> void:
+get_approved_count:
+    // smart_contracts/issuer_registry/contract.py:90
+    // return self.approved_count.value
+    intc_0 // 0
+    bytec_0 // "approved_count"
+    app_global_get_ex
+    assert // check self.approved_count exists
+    // smart_contracts/issuer_registry/contract.py:87
+    // @abimethod(readonly=True)
+    itob
+    bytec 4 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
     return

@@ -3,7 +3,7 @@
   "sources": [
     "../../retirement_manager/contract.py"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;AAQ0D;AAAf;AAAnC;AAJR;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AASQ;AAA6B;AAA7B;AAHH;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAGG;AAAA;AACA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAJH;AAAA",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAauD;AAAf;AAAhC;AACkD;AAAf;AAAnC;AAVR;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAeQ;AAA0B;AAA1B;AACA;AAA6B;AAA7B;AAJH;AAAA;AAMA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAUU;;AAAc;;AAAd;AAAP;AACA;AAAA;AACA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAZH;AAAA;AAcA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAUU;;AAAc;;AAAd;AAAP;AACA;AAAA;AACY;AAAA;AAAA;AAAA;AAA0B;AAAA;AAAA;AAAA;AAA1B;AAAA;;AAAA;AACL;;AAAA;AAAP;AACA;AAAA;AAAA;AAAA;AAdH;AAAA;AAmBU;AAAA;AAAA;AAAA;AAHV;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAQU;AAAA;AAAA;AAAA;AAA0B;AAAA;AAAA;AAAA;AAA1B;AAHV;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -11,12 +11,12 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 0 1"
+      "op": "intcblock 0 1 8"
     },
-    "5": {
-      "op": "bytecblock \"retired_credits\""
+    "6": {
+      "op": "bytecblock \"total_supply\" \"retired_credits\" 0x151f7c75"
     },
-    "23": {
+    "42": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%0#0"
@@ -25,35 +25,55 @@
         "tmp%0#0"
       ]
     },
-    "25": {
+    "44": {
       "op": "bnz main_after_if_else@2",
       "stack_out": []
     },
-    "28": {
-      "op": "bytec_0 // \"retired_credits\"",
+    "47": {
+      "op": "bytec_0 // \"total_supply\"",
       "defined_out": [
-        "\"retired_credits\""
+        "\"total_supply\""
       ],
       "stack_out": [
-        "\"retired_credits\""
+        "\"total_supply\""
       ]
     },
-    "29": {
+    "48": {
       "op": "intc_0 // 0",
       "defined_out": [
-        "\"retired_credits\"",
+        "\"total_supply\"",
         "0"
       ],
       "stack_out": [
-        "\"retired_credits\"",
+        "\"total_supply\"",
         "0"
       ]
     },
-    "30": {
+    "49": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "31": {
+    "50": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\""
+      ],
+      "stack_out": [
+        "\"retired_credits\""
+      ]
+    },
+    "51": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"retired_credits\"",
+        "0"
+      ]
+    },
+    "52": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "53": {
       "block": "main_after_if_else@2",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -64,7 +84,7 @@
         "tmp%0#1"
       ]
     },
-    "33": {
+    "55": {
       "op": "!",
       "defined_out": [
         "tmp%1#1"
@@ -73,11 +93,11 @@
         "tmp%1#1"
       ]
     },
-    "34": {
+    "56": {
       "op": "assert",
       "stack_out": []
     },
-    "35": {
+    "57": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%2#0"
@@ -86,39 +106,51 @@
         "tmp%2#0"
       ]
     },
-    "37": {
-      "op": "bz main_create_NoOp@7",
+    "59": {
+      "op": "bz main_create_NoOp@10",
       "stack_out": []
     },
-    "40": {
-      "op": "pushbytes 0x6d10009f // method \"retire_credits(uint64)void\"",
+    "62": {
+      "op": "pushbytess 0x9ce29141 0x6d10009f 0x90f5a882 0x696e0166 // method \"add_supply(uint64)void\", method \"retire_credits(uint64)void\", method \"get_retirement_stats()uint64\", method \"get_available_supply()uint64\"",
       "defined_out": [
+        "Method(add_supply(uint64)void)",
+        "Method(get_available_supply()uint64)",
+        "Method(get_retirement_stats()uint64)",
         "Method(retire_credits(uint64)void)"
       ],
       "stack_out": [
-        "Method(retire_credits(uint64)void)"
+        "Method(add_supply(uint64)void)",
+        "Method(retire_credits(uint64)void)",
+        "Method(get_retirement_stats()uint64)",
+        "Method(get_available_supply()uint64)"
       ]
     },
-    "46": {
+    "84": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
+        "Method(add_supply(uint64)void)",
+        "Method(get_available_supply()uint64)",
+        "Method(get_retirement_stats()uint64)",
         "Method(retire_credits(uint64)void)",
         "tmp%4#0"
       ],
       "stack_out": [
+        "Method(add_supply(uint64)void)",
         "Method(retire_credits(uint64)void)",
+        "Method(get_retirement_stats()uint64)",
+        "Method(get_available_supply()uint64)",
         "tmp%4#0"
       ]
     },
-    "49": {
-      "op": "match retire_credits",
+    "87": {
+      "op": "match add_supply retire_credits get_retirement_stats get_available_supply",
       "stack_out": []
     },
-    "53": {
+    "97": {
       "op": "err"
     },
-    "54": {
-      "block": "main_create_NoOp@7",
+    "98": {
+      "block": "main_create_NoOp@10",
       "stack_in": [],
       "op": "pushbytes 0x4c5c61ba // method \"create()void\"",
       "defined_out": [
@@ -128,7 +160,7 @@
         "Method(create()void)"
       ]
     },
-    "60": {
+    "104": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(create()void)",
@@ -139,40 +171,62 @@
         "tmp%5#0"
       ]
     },
-    "63": {
-      "op": "match main_create_route@8",
+    "107": {
+      "op": "match create",
       "stack_out": []
     },
-    "67": {
+    "111": {
       "op": "err"
     },
-    "68": {
-      "block": "main_create_route@8",
+    "112": {
+      "subroutine": "smart_contracts.retirement_manager.contract.RetirementManager.create[routing]",
+      "params": {},
+      "block": "create",
       "stack_in": [],
-      "op": "bytec_0 // \"retired_credits\"",
+      "op": "bytec_0 // \"total_supply\"",
       "defined_out": [
-        "\"retired_credits\""
+        "\"total_supply\""
       ],
       "stack_out": [
-        "\"retired_credits\""
+        "\"total_supply\""
       ]
     },
-    "69": {
+    "113": {
       "op": "intc_0 // 0",
       "defined_out": [
-        "\"retired_credits\"",
+        "\"total_supply\"",
         "0"
       ],
       "stack_out": [
-        "\"retired_credits\"",
+        "\"total_supply\"",
         "0"
       ]
     },
-    "70": {
+    "114": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "71": {
+    "115": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\""
+      ],
+      "stack_out": [
+        "\"retired_credits\""
+      ]
+    },
+    "116": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"retired_credits\"",
+        "0"
+      ]
+    },
+    "117": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "118": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -181,14 +235,14 @@
         "1"
       ]
     },
-    "72": {
+    "119": {
       "op": "return",
       "stack_out": []
     },
-    "73": {
-      "subroutine": "smart_contracts.retirement_manager.contract.RetirementManager.retire_credits[routing]",
+    "120": {
+      "subroutine": "smart_contracts.retirement_manager.contract.RetirementManager.add_supply[routing]",
       "params": {},
-      "block": "retire_credits",
+      "block": "add_supply",
       "stack_in": [],
       "op": "txna ApplicationArgs 1",
       "defined_out": [
@@ -198,7 +252,7 @@
         "tmp%0#0"
       ]
     },
-    "76": {
+    "123": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -209,7 +263,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "77": {
+    "124": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -220,8 +274,8 @@
         "len%0#0"
       ]
     },
-    "78": {
-      "op": "pushint 8",
+    "125": {
+      "op": "intc_2 // 8",
       "defined_out": [
         "8",
         "len%0#0",
@@ -233,7 +287,7 @@
         "8"
       ]
     },
-    "80": {
+    "126": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -244,14 +298,14 @@
         "eq%0#0"
       ]
     },
-    "81": {
+    "127": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "82": {
+    "128": {
       "op": "btoi",
       "defined_out": [
         "amount#0"
@@ -260,7 +314,49 @@
         "amount#0"
       ]
     },
-    "83": {
+    "129": {
+      "op": "txn Sender",
+      "defined_out": [
+        "amount#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%0#1"
+      ]
+    },
+    "131": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "amount#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ]
+    },
+    "133": {
+      "op": "==",
+      "defined_out": [
+        "amount#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%2#0"
+      ]
+    },
+    "134": {
+      "error": "Only creator can add supply",
+      "op": "assert // Only creator can add supply",
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "135": {
       "op": "dup",
       "defined_out": [
         "amount#0",
@@ -271,14 +367,14 @@
         "amount#0 (copy)"
       ]
     },
-    "84": {
+    "136": {
       "error": "Amount must be greater than zero",
       "op": "assert // Amount must be greater than zero",
       "stack_out": [
         "amount#0"
       ]
     },
-    "85": {
+    "137": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -289,20 +385,20 @@
         "0"
       ]
     },
-    "86": {
-      "op": "bytec_0 // \"retired_credits\"",
+    "138": {
+      "op": "bytec_0 // \"total_supply\"",
       "defined_out": [
-        "\"retired_credits\"",
+        "\"total_supply\"",
         "0",
         "amount#0"
       ],
       "stack_out": [
         "amount#0",
         "0",
-        "\"retired_credits\""
+        "\"total_supply\""
       ]
     },
-    "87": {
+    "139": {
       "op": "app_global_get_ex",
       "defined_out": [
         "amount#0",
@@ -315,42 +411,42 @@
         "maybe_exists%0#0"
       ]
     },
-    "88": {
-      "error": "check self.retired_credits exists",
-      "op": "assert // check self.retired_credits exists",
+    "140": {
+      "error": "check self.total_supply exists",
+      "op": "assert // check self.total_supply exists",
       "stack_out": [
         "amount#0",
         "maybe_value%0#0"
       ]
     },
-    "89": {
+    "141": {
       "op": "+",
       "defined_out": [
-        "tmp%1#1"
+        "tmp%4#0"
       ],
       "stack_out": [
-        "tmp%1#1"
+        "tmp%4#0"
       ]
     },
-    "90": {
-      "op": "bytec_0 // \"retired_credits\"",
+    "142": {
+      "op": "bytec_0 // \"total_supply\"",
       "stack_out": [
-        "tmp%1#1",
-        "\"retired_credits\""
+        "tmp%4#0",
+        "\"total_supply\""
       ]
     },
-    "91": {
+    "143": {
       "op": "swap",
       "stack_out": [
-        "\"retired_credits\"",
-        "tmp%1#1"
+        "\"total_supply\"",
+        "tmp%4#0"
       ]
     },
-    "92": {
+    "144": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "93": {
+    "145": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -359,7 +455,580 @@
         "1"
       ]
     },
-    "94": {
+    "146": {
+      "op": "return",
+      "stack_out": []
+    },
+    "147": {
+      "subroutine": "smart_contracts.retirement_manager.contract.RetirementManager.retire_credits[routing]",
+      "params": {},
+      "block": "retire_credits",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "150": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "151": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "152": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "153": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "154": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "155": {
+      "op": "btoi",
+      "defined_out": [
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "156": {
+      "op": "txn Sender",
+      "defined_out": [
+        "amount#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%0#1"
+      ]
+    },
+    "158": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "amount#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ]
+    },
+    "160": {
+      "op": "==",
+      "defined_out": [
+        "amount#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "tmp%2#0"
+      ]
+    },
+    "161": {
+      "error": "Only creator can retire credits",
+      "op": "assert // Only creator can retire credits",
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "162": {
+      "op": "dup",
+      "defined_out": [
+        "amount#0",
+        "amount#0 (copy)"
+      ],
+      "stack_out": [
+        "amount#0",
+        "amount#0 (copy)"
+      ]
+    },
+    "163": {
+      "error": "Amount must be greater than zero",
+      "op": "assert // Amount must be greater than zero",
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "164": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0"
+      ]
+    },
+    "165": {
+      "op": "bytec_0 // \"total_supply\"",
+      "defined_out": [
+        "\"total_supply\"",
+        "0",
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "0",
+        "\"total_supply\""
+      ]
+    },
+    "166": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amount#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "167": {
+      "error": "check self.total_supply exists",
+      "op": "assert // check self.total_supply exists",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "168": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "169": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\"",
+        "0",
+        "amount#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "0",
+        "\"retired_credits\""
+      ]
+    },
+    "170": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amount#0",
+        "maybe_exists%1#0",
+        "maybe_value%0#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "171": {
+      "error": "check self.retired_credits exists",
+      "op": "assert // check self.retired_credits exists",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_value%1#0"
+      ]
+    },
+    "172": {
+      "op": "swap",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%1#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "173": {
+      "op": "dig 1",
+      "defined_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_value%1#0",
+        "maybe_value%1#0 (copy)"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%1#0",
+        "maybe_value%0#0",
+        "maybe_value%1#0 (copy)"
+      ]
+    },
+    "175": {
+      "op": "-",
+      "defined_out": [
+        "amount#0",
+        "available#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%1#0",
+        "available#0"
+      ]
+    },
+    "176": {
+      "op": "dig 2",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%1#0",
+        "available#0",
+        "amount#0 (copy)"
+      ]
+    },
+    "178": {
+      "op": ">=",
+      "defined_out": [
+        "amount#0",
+        "maybe_value%1#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "amount#0",
+        "maybe_value%1#0",
+        "tmp%5#0"
+      ]
+    },
+    "179": {
+      "error": "Insufficient supply to retire",
+      "op": "assert // Insufficient supply to retire",
+      "stack_out": [
+        "amount#0",
+        "maybe_value%1#0"
+      ]
+    },
+    "180": {
+      "op": "+",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "181": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "stack_out": [
+        "tmp%6#0",
+        "\"retired_credits\""
+      ]
+    },
+    "182": {
+      "op": "swap",
+      "stack_out": [
+        "\"retired_credits\"",
+        "tmp%6#0"
+      ]
+    },
+    "183": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "184": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "185": {
+      "op": "return",
+      "stack_out": []
+    },
+    "186": {
+      "subroutine": "smart_contracts.retirement_manager.contract.RetirementManager.get_retirement_stats[routing]",
+      "params": {},
+      "block": "get_retirement_stats",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "187": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"retired_credits\""
+      ]
+    },
+    "188": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "189": {
+      "error": "check self.retired_credits exists",
+      "op": "assert // check self.retired_credits exists",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "190": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "191": {
+      "op": "bytec_2 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "192": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "193": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "194": {
+      "op": "log",
+      "stack_out": []
+    },
+    "195": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "196": {
+      "op": "return",
+      "stack_out": []
+    },
+    "197": {
+      "subroutine": "smart_contracts.retirement_manager.contract.RetirementManager.get_available_supply[routing]",
+      "params": {},
+      "block": "get_available_supply",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "198": {
+      "op": "bytec_0 // \"total_supply\"",
+      "defined_out": [
+        "\"total_supply\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"total_supply\""
+      ]
+    },
+    "199": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "200": {
+      "error": "check self.total_supply exists",
+      "op": "assert // check self.total_supply exists",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "201": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "202": {
+      "op": "bytec_1 // \"retired_credits\"",
+      "defined_out": [
+        "\"retired_credits\"",
+        "0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "0",
+        "\"retired_credits\""
+      ]
+    },
+    "203": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%0#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "204": {
+      "error": "check self.retired_credits exists",
+      "op": "assert // check self.retired_credits exists",
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_value%1#0"
+      ]
+    },
+    "205": {
+      "op": "-",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "206": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "207": {
+      "op": "bytec_2 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "208": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "209": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "210": {
+      "op": "log",
+      "stack_out": []
+    },
+    "211": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "212": {
       "op": "return",
       "stack_out": []
     }
