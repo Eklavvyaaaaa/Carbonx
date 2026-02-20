@@ -254,7 +254,15 @@ export default function Marketplace() {
             const amountDecimal = Number(buyAmount);
             const amountBase = BigInt(Math.floor(amountDecimal * 1_000_000));
 
-            const priceBI = BigInt(Math.floor(currentPrice));
+            if (amountBase <= 0n) {
+                toast.warning('Enter a valid credit amount (e.g. 1 or 0.5).');
+                setLoading(false);
+                return;
+            }
+
+            // Price per credit in microAlgos (contract uses 1 ALGO = 1 credit if not set)
+            const priceMicroAlgos = currentPrice > 0 ? currentPrice : 1_000_000;
+            const priceBI = BigInt(Math.floor(priceMicroAlgos));
             const factorBI = BigInt(1_000_000);
             const totalCost = (priceBI * amountBase + factorBI - 1n) / factorBI;
             const totalCostAlgo = Number(totalCost) / 1_000_000;
@@ -279,7 +287,13 @@ export default function Marketplace() {
         } catch (e) {
             console.error('[Marketplace] Buy error:', e);
             const errorMsg = e.message || 'Purchase failed';
-            toast.error(`Purchase failed: ${errorMsg}`);
+            if (errorMsg.includes('Asset not initialized') || errorMsg.includes('not initialized')) {
+                toast.error('Marketplace asset is not initialized. Please contact the contract owner.');
+            } else if (errorMsg.includes('cancel') || errorMsg.includes('rejected')) {
+                toast.warning('Transaction was cancelled.');
+            } else {
+                toast.error(`Purchase failed: ${errorMsg}`);
+            }
         }
         setLoading(false);
     };
@@ -296,7 +310,12 @@ export default function Marketplace() {
             setMintAmount('');
             await refresh();
         } catch (e) {
-            toast.error(e.message || 'Minting failed');
+            const msg = e.message || 'Minting failed';
+            if (msg.includes('creator') || msg.includes('Only creator')) {
+                toast.error('Only the contract creator can mint credits.');
+            } else {
+                toast.error(msg);
+            }
         }
         setLoading(false);
     };
