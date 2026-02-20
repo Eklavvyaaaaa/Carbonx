@@ -1,16 +1,33 @@
 import './StaticPages.css';
 
+// SVG Icon components
+const IconTarget = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg>
+);
+const IconGlobe = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>
+);
+const IconFlag = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>
+);
+const IconLink = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" /></svg>
+);
+const IconUser = ({ letter }) => (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+);
+
 const TEAM = [
-    { name: 'Arjun Mehta', role: 'CEO & Co-Founder', bg: 'Fintech & Climate Policy', emoji: '👨‍💼' },
-    { name: 'Priya Sharma', role: 'CTO & Co-Founder', bg: 'Blockchain & Distributed Systems', emoji: '👩‍💻' },
-    { name: 'Rahul Verma', role: 'Head of Carbon Markets', bg: 'Environmental Science & Trading', emoji: '📊' },
+    { name: 'Arjun Mehta', role: 'CEO & Co-Founder', bg: 'Fintech & Climate Policy', initials: 'AM' },
+    { name: 'Priya Sharma', role: 'CTO & Co-Founder', bg: 'Blockchain & Distributed Systems', initials: 'PS' },
+    { name: 'Rahul Verma', role: 'Head of Carbon Markets', bg: 'Environmental Science & Trading', initials: 'RV' },
 ];
 
 const VALUES = [
-    { icon: '🎯', title: 'Transparency', desc: 'Every credit is traceable on-chain. Full audit trail from source to retirement.' },
-    { icon: '🌍', title: 'Impact First', desc: 'We prioritize projects with measurable environmental and social co-benefits.' },
-    { icon: '🇮🇳', title: 'India Focus', desc: 'Empowering Indian carbon projects to access global voluntary carbon markets.' },
-    { icon: '🔗', title: 'Blockchain Native', desc: 'Built on Algorand for speed, security, and near-zero carbon footprint.' },
+    { Icon: IconTarget, title: 'Transparency', desc: 'Every credit is traceable on-chain. Full audit trail from source to retirement.' },
+    { Icon: IconGlobe, title: 'Impact First', desc: 'We prioritize projects with measurable environmental and social co-benefits.' },
+    { Icon: IconFlag, title: 'India Focus', desc: 'Empowering Indian carbon projects to access global voluntary carbon markets.' },
+    { Icon: IconLink, title: 'Blockchain Native', desc: 'Built on Algorand for speed, security, and near-zero carbon footprint.' },
 ];
 
 export default function About() {
@@ -93,7 +110,7 @@ export default function About() {
                     <div className="values-grid">
                         {VALUES.map((v, i) => (
                             <div key={i} className="card value-card text-center">
-                                <div className="value-icon">{v.icon}</div>
+                                <div className="value-icon"><v.Icon /></div>
                                 <h3>{v.title}</h3>
                                 <p className="text-muted">{v.desc}</p>
                             </div>
@@ -112,7 +129,9 @@ export default function About() {
                     <div className="team-grid">
                         {TEAM.map((member, i) => (
                             <div key={i} className="card team-card text-center">
-                                <div className="team-avatar">{member.emoji}</div>
+                                <div className="team-avatar">
+                                    <span className="team-initials">{member.initials}</span>
+                                </div>
                                 <h3>{member.name}</h3>
                                 <p className="team-role">{member.role}</p>
                                 <p className="text-xs text-muted mt-2">{member.bg}</p>

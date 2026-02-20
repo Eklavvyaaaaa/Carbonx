@@ -1,13 +1,38 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
+import { getAssetBalance, getAlgoBalance } from '../services/algorand';
+import { APP_IDS } from '../config';
 import './Navbar.css';
 
 export default function Navbar() {
     const { account, connect, disconnect, connecting, shortAddress } = useWallet();
+    const [cxtBalance, setCxtBalance] = useState(0);
+    const [algoBalance, setAlgoBalance] = useState(0);
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const location = useLocation();
+
+    useEffect(() => {
+        const fetchBalances = async () => {
+            if (account) {
+                try {
+                    const [cxt, algo] = await Promise.all([
+                        getAssetBalance(account, APP_IDS.CXT_ASSET_ID),
+                        getAlgoBalance(account)
+                    ]);
+                    setCxtBalance(Number(cxt) / 1_000_000);
+                    setAlgoBalance(Number(algo) / 1_000_000);
+                } catch (e) { console.error(e); }
+            } else {
+                setCxtBalance(0);
+                setAlgoBalance(0);
+            }
+        };
+        fetchBalances();
+        const interval = setInterval(fetchBalances, 10000); // refresh every 10s
+        return () => clearInterval(interval);
+    }, [account]);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -56,9 +81,18 @@ export default function Navbar() {
                 {/* Actions */}
                 <div className="navbar-actions desktop-only">
                     {account ? (
-                        <div className="wallet-badge" onClick={disconnect} title="Disconnect">
-                            <span className="dot"></span>
-                            {shortAddress}
+                        <div className="account-pills">
+                            <div className="balance-pill" title="ALGO Balance">
+                                <span className={`status-dot ${algoBalance > 0 ? 'active' : 'inactive'}`}></span>
+                                <span className="balance-val">{algoBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ALGO</span>
+                            </div>
+                            <div className="balance-pill" title="$CXT Token Balance">
+                                <span className="balance-val">{cxtBalance.toLocaleString()} $CXT</span>
+                            </div>
+                            <div className="wallet-badge" onClick={disconnect} title="Disconnect">
+                                <span className="dot"></span>
+                                {shortAddress}
+                            </div>
                         </div>
                     ) : (
                         <button

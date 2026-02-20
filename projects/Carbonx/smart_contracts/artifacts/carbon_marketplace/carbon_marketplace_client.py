@@ -19,7 +19,7 @@ from algosdk.v2client.models import SimulateTraceConfig
 import algokit_utils
 from algokit_utils import AlgorandClient as _AlgoKitAlgorandClient
 
-_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": ["OptIn"], "create": []}, "methods": [{"actions": {"call": [], "create": ["NoOp"]}, "args": [], "name": "create", "returns": {"type": "void"}, "desc": "Initialise the marketplace.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "uint64", "desc": "number of credits to mint (must be > 0)", "name": "amount"}], "name": "mint_credits", "returns": {"type": "void"}, "desc": "Mint new carbon credits to the caller. Creator only.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "uint64", "desc": "number of credits to retire (must be > 0)", "name": "amount"}], "name": "retire_credits", "returns": {"type": "void"}, "desc": "Retire (burn) carbon credits from the caller's balance.\nAnyone who holds credits can retire them. This permanently removes them from circulation.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "account"}], "name": "get_credits", "returns": {"type": "uint64"}, "desc": "Return the credit balance for the given account.", "events": [], "readonly": true, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "get_total_credits", "returns": {"type": "uint64"}, "desc": "Return the total credits currently in circulation.", "events": [], "readonly": true, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "get_retired_credits", "returns": {"type": "uint64"}, "desc": "Return the cumulative retired credits.", "events": [], "readonly": true, "recommendations": {}}], "name": "CarbonMarketplace", "state": {"keys": {"box": {}, "global": {"total_credits": {"key": "dG90YWxfY3JlZGl0cw==", "keyType": "AVMString", "valueType": "AVMUint64"}, "retired_credits": {"key": "cmV0aXJlZF9jcmVkaXRz", "keyType": "AVMString", "valueType": "AVMUint64"}}, "local": {"credits_minted": {"key": "Y3JlZGl0c19taW50ZWQ=", "keyType": "AVMString", "valueType": "AVMUint64"}}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 2}, "local": {"bytes": 0, "ints": 1}}}, "structs": {}, "byteCode": {"approval": "CyADAAEIJgQNdG90YWxfY3JlZGl0cw9yZXRpcmVkX2NyZWRpdHMOY3JlZGl0c19taW50ZWQEFR98dTEYQAAGKCJnKSJnMRtBAEIxGRREMRhBACuCBQQppRkIBG0QAJ8EjeesIQQJL1rRBBQJGVI2GgCOBQAfAEwAggCZAKQAgARMXGG6NhoAjgEACQAxGSMSMRgQQygiZykiZyNDNhoBSRUkEkQXMQAyCRJESUQiKGVESwEIKExnMQAiKmMiTgJNCDEAKk8CZiNDNhoBSRUkEkQXSUQxACIqYyJOAk1JSwIPREsBCTEAKk8CZiIoZURLAQkoTGciKWVECClMZyNDNhoBSRWBIBJEIipjIk4CTRYrTFCwI0MiKGVEFitMULAjQyIpZUQWK0xQsCND", "clear": "C4EBQw=="}, "desc": "Marketplace for minting and retiring carbon credits with per-user tracking.\n\n    Global state:\n        total_credits    \u2013 total minted credits in circulation\n        retired_credits  \u2013 cumulative credits permanently retired\n\n    Local state (per account):\n        credits_minted   \u2013 credits minted by/for this account\n    ", "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAwIDEgOAogICAgYnl0ZWNibG9jayAidG90YWxfY3JlZGl0cyIgInJldGlyZWRfY3JlZGl0cyIgImNyZWRpdHNfbWludGVkIiAweDE1MWY3Yzc1CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjE3CiAgICAvLyBzZWxmLnRvdGFsX2NyZWRpdHMgPSBHbG9iYWxTdGF0ZShVSW50NjQoMCksIGtleT0idG90YWxfY3JlZGl0cyIpCiAgICBieXRlY18wIC8vICJ0b3RhbF9jcmVkaXRzIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjE4CiAgICAvLyBzZWxmLnJldGlyZWRfY3JlZGl0cyA9IEdsb2JhbFN0YXRlKFVJbnQ2NCgwKSwga2V5PSJyZXRpcmVkX2NyZWRpdHMiKQogICAgYnl0ZWNfMSAvLyAicmV0aXJlZF9jcmVkaXRzIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQ2FyYm9uTWFya2V0cGxhY2UoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX29wdF9pbkAxNgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYnogbWFpbl9jcmVhdGVfTm9PcEAxMgogICAgcHVzaGJ5dGVzcyAweDI5YTUxOTA4IDB4NmQxMDAwOWYgMHg4ZGU3YWMyMSAweDA5MmY1YWQxIDB4MTQwOTE5NTIgLy8gbWV0aG9kICJtaW50X2NyZWRpdHModWludDY0KXZvaWQiLCBtZXRob2QgInJldGlyZV9jcmVkaXRzKHVpbnQ2NCl2b2lkIiwgbWV0aG9kICJnZXRfY3JlZGl0cyhhZGRyZXNzKXVpbnQ2NCIsIG1ldGhvZCAiZ2V0X3RvdGFsX2NyZWRpdHMoKXVpbnQ2NCIsIG1ldGhvZCAiZ2V0X3JldGlyZWRfY3JlZGl0cygpdWludDY0IgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWludF9jcmVkaXRzIHJldGlyZV9jcmVkaXRzIGdldF9jcmVkaXRzIGdldF90b3RhbF9jcmVkaXRzIGdldF9yZXRpcmVkX2NyZWRpdHMKICAgIGVycgoKbWFpbl9jcmVhdGVfTm9PcEAxMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQ2FyYm9uTWFya2V0cGxhY2UoQVJDNENvbnRyYWN0KToKICAgIHB1c2hieXRlcyAweDRjNWM2MWJhIC8vIG1ldGhvZCAiY3JlYXRlKCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggY3JlYXRlCiAgICBlcnIKCm1haW5fb3B0X2luQDE2OgogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weToyNwogICAgLy8gQGJhcmVtZXRob2QoYWxsb3dfYWN0aW9ucz1bIk9wdEluIl0pCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBpbnRjXzEgLy8gT3B0SW4KICAgID09CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgJiYKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jYXJib25fbWFya2V0cGxhY2UuY29udHJhY3QuQ2FyYm9uTWFya2V0cGxhY2UuY3JlYXRlW3JvdXRpbmddKCkgLT4gdm9pZDoKY3JlYXRlOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weToyNAogICAgLy8gc2VsZi50b3RhbF9jcmVkaXRzLnZhbHVlID0gVUludDY0KDApCiAgICBieXRlY18wIC8vICJ0b3RhbF9jcmVkaXRzIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjI1CiAgICAvLyBzZWxmLnJldGlyZWRfY3JlZGl0cy52YWx1ZSA9IFVJbnQ2NCgwKQogICAgYnl0ZWNfMSAvLyAicmV0aXJlZF9jcmVkaXRzIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjIxCiAgICAvLyBAYWJpbWV0aG9kKGNyZWF0ZT0icmVxdWlyZSIpCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzLmNhcmJvbl9tYXJrZXRwbGFjZS5jb250cmFjdC5DYXJib25NYXJrZXRwbGFjZS5taW50X2NyZWRpdHNbcm91dGluZ10oKSAtPiB2b2lkOgptaW50X2NyZWRpdHM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjMyCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzIgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6MzkKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyID09IEdsb2JhbC5jcmVhdG9yX2FkZHJlc3MsICJPbmx5IGNyZWF0b3IgY2FuIG1pbnQgY3JlZGl0cyIKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyBPbmx5IGNyZWF0b3IgY2FuIG1pbnQgY3JlZGl0cwogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo0MAogICAgLy8gYXNzZXJ0IGFtb3VudCA+IDAsICJBbW91bnQgbXVzdCBiZSBncmVhdGVyIHRoYW4gemVybyIKICAgIGR1cAogICAgYXNzZXJ0IC8vIEFtb3VudCBtdXN0IGJlIGdyZWF0ZXIgdGhhbiB6ZXJvCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjQxCiAgICAvLyBzZWxmLnRvdGFsX2NyZWRpdHMudmFsdWUgKz0gYW1vdW50CiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMCAvLyAidG90YWxfY3JlZGl0cyIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi50b3RhbF9jcmVkaXRzIGV4aXN0cwogICAgZGlnIDEKICAgICsKICAgIGJ5dGVjXzAgLy8gInRvdGFsX2NyZWRpdHMiCiAgICBzd2FwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo0MgogICAgLy8gY3VycmVudCA9IHNlbGYuY3JlZGl0c19taW50ZWQuZ2V0KFR4bi5zZW5kZXIsIGRlZmF1bHQ9VUludDY0KDApKQogICAgdHhuIFNlbmRlcgogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzIgLy8gImNyZWRpdHNfbWludGVkIgogICAgYXBwX2xvY2FsX2dldF9leAogICAgaW50Y18wIC8vIDAKICAgIGNvdmVyIDIKICAgIHNlbGVjdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo0MwogICAgLy8gc2VsZi5jcmVkaXRzX21pbnRlZFtUeG4uc2VuZGVyXSA9IGN1cnJlbnQgKyBhbW91bnQKICAgICsKICAgIHR4biBTZW5kZXIKICAgIGJ5dGVjXzIgLy8gImNyZWRpdHNfbWludGVkIgogICAgdW5jb3ZlciAyCiAgICBhcHBfbG9jYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjMyCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMuY2FyYm9uX21hcmtldHBsYWNlLmNvbnRyYWN0LkNhcmJvbk1hcmtldHBsYWNlLnJldGlyZV9jcmVkaXRzW3JvdXRpbmddKCkgLT4gdm9pZDoKcmV0aXJlX2NyZWRpdHM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjQ1CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzIgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NTUKICAgIC8vIGFzc2VydCBhbW91bnQgPiAwLCAiQW1vdW50IG11c3QgYmUgZ3JlYXRlciB0aGFuIHplcm8iCiAgICBkdXAKICAgIGFzc2VydCAvLyBBbW91bnQgbXVzdCBiZSBncmVhdGVyIHRoYW4gemVybwogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo1NgogICAgLy8gY3VycmVudCA9IHNlbGYuY3JlZGl0c19taW50ZWQuZ2V0KFR4bi5zZW5kZXIsIGRlZmF1bHQ9VUludDY0KDApKQogICAgdHhuIFNlbmRlcgogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzIgLy8gImNyZWRpdHNfbWludGVkIgogICAgYXBwX2xvY2FsX2dldF9leAogICAgaW50Y18wIC8vIDAKICAgIGNvdmVyIDIKICAgIHNlbGVjdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo1NwogICAgLy8gYXNzZXJ0IGN1cnJlbnQgPj0gYW1vdW50LCAiSW5zdWZmaWNpZW50IGNyZWRpdHMgdG8gcmV0aXJlIgogICAgZHVwCiAgICBkaWcgMgogICAgPj0KICAgIGFzc2VydCAvLyBJbnN1ZmZpY2llbnQgY3JlZGl0cyB0byByZXRpcmUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NTgKICAgIC8vIHNlbGYuY3JlZGl0c19taW50ZWRbVHhuLnNlbmRlcl0gPSBjdXJyZW50IC0gYW1vdW50CiAgICBkaWcgMQogICAgLQogICAgdHhuIFNlbmRlcgogICAgYnl0ZWNfMiAvLyAiY3JlZGl0c19taW50ZWQiCiAgICB1bmNvdmVyIDIKICAgIGFwcF9sb2NhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NTkKICAgIC8vIHNlbGYudG90YWxfY3JlZGl0cy52YWx1ZSAtPSBhbW91bnQKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18wIC8vICJ0b3RhbF9jcmVkaXRzIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnRvdGFsX2NyZWRpdHMgZXhpc3RzCiAgICBkaWcgMQogICAgLQogICAgYnl0ZWNfMCAvLyAidG90YWxfY3JlZGl0cyIKICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjYwCiAgICAvLyBzZWxmLnJldGlyZWRfY3JlZGl0cy52YWx1ZSArPSBhbW91bnQKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18xIC8vICJyZXRpcmVkX2NyZWRpdHMiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYucmV0aXJlZF9jcmVkaXRzIGV4aXN0cwogICAgKwogICAgYnl0ZWNfMSAvLyAicmV0aXJlZF9jcmVkaXRzIgogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NDUKICAgIC8vIEBhYmltZXRob2QoKQogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jYXJib25fbWFya2V0cGxhY2UuY29udHJhY3QuQ2FyYm9uTWFya2V0cGxhY2UuZ2V0X2NyZWRpdHNbcm91dGluZ10oKSAtPiB2b2lkOgpnZXRfY3JlZGl0czoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NjIKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBwdXNoaW50IDMyCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnN0YXRpY19hcnJheTxhcmM0LnVpbnQ4LCAzMj4KICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NjUKICAgIC8vIHJldHVybiBzZWxmLmNyZWRpdHNfbWludGVkLmdldChhY2NvdW50LCBkZWZhdWx0PVVJbnQ2NCgwKSkKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18yIC8vICJjcmVkaXRzX21pbnRlZCIKICAgIGFwcF9sb2NhbF9nZXRfZXgKICAgIGludGNfMCAvLyAwCiAgICBjb3ZlciAyCiAgICBzZWxlY3QKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NjIKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIGl0b2IKICAgIGJ5dGVjXzMgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMuY2FyYm9uX21hcmtldHBsYWNlLmNvbnRyYWN0LkNhcmJvbk1hcmtldHBsYWNlLmdldF90b3RhbF9jcmVkaXRzW3JvdXRpbmddKCkgLT4gdm9pZDoKZ2V0X3RvdGFsX2NyZWRpdHM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjcwCiAgICAvLyByZXR1cm4gc2VsZi50b3RhbF9jcmVkaXRzLnZhbHVlCiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMCAvLyAidG90YWxfY3JlZGl0cyIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi50b3RhbF9jcmVkaXRzIGV4aXN0cwogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo2NwogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgaXRvYgogICAgYnl0ZWNfMyAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jYXJib25fbWFya2V0cGxhY2UuY29udHJhY3QuQ2FyYm9uTWFya2V0cGxhY2UuZ2V0X3JldGlyZWRfY3JlZGl0c1tyb3V0aW5nXSgpIC0+IHZvaWQ6CmdldF9yZXRpcmVkX2NyZWRpdHM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5Ojc1CiAgICAvLyByZXR1cm4gc2VsZi5yZXRpcmVkX2NyZWRpdHMudmFsdWUKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18xIC8vICJyZXRpcmVkX2NyZWRpdHMiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYucmV0aXJlZF9jcmVkaXRzIGV4aXN0cwogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo3MgogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgaXRvYgogICAgYnl0ZWNfMyAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgo=", "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [172, 211], "errorMessage": "Amount must be greater than zero"}, {"pc": [225], "errorMessage": "Insufficient credits to retire"}, {"pc": [170], "errorMessage": "Only creator can mint credits"}, {"pc": [248, 292], "errorMessage": "check self.retired_credits exists"}, {"pc": [176, 238, 281], "errorMessage": "check self.total_credits exists"}, {"pc": [263], "errorMessage": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>"}, {"pc": [163, 208], "errorMessage": "invalid number of bytes for arc4.uint64"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
+_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": []}, "methods": [{"actions": {"call": [], "create": ["NoOp"]}, "args": [], "name": "create", "returns": {"type": "void"}, "desc": "Initialise the marketplace.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "uint64", "desc": "The $CXT asset to opt-in to.", "name": "asset"}], "name": "init_asset", "returns": {"type": "void"}, "desc": "Opt-in to the $CXT ASA and set its ID. Creator only.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "pay", "desc": "The payment transaction from the buyer to the contract.", "name": "buyer_tx"}, {"type": "uint64", "desc": "Number of credits to purchase.", "name": "amount"}], "name": "buy_credits", "returns": {"type": "void"}, "desc": "Purchase carbon credits using ALGO.\nThe contract sends $CXT tokens from its balance to the buyer.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "axfer", "desc": "The asset transfer from the creator/reserve to the contract.", "name": "axfer_tx"}], "name": "mint_credits", "returns": {"type": "void"}, "desc": "Deposit new $CXT credits into the contract. Creator only.", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "get_asset_id", "returns": {"type": "uint64"}, "desc": "Return the $CXT Asset ID.", "events": [], "readonly": true, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "get_total_credits", "returns": {"type": "uint64"}, "desc": "Return the total credits distributed.", "events": [], "readonly": true, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "get_retired_credits", "returns": {"type": "uint64"}, "desc": "Return the cumulative retired credits.", "events": [], "readonly": true, "recommendations": {}}], "name": "CarbonMarketplace", "state": {"keys": {"box": {}, "global": {"total_credits": {"key": "dG90YWxfY3JlZGl0cw==", "keyType": "AVMString", "valueType": "AVMUint64"}, "retired_credits": {"key": "cmV0aXJlZF9jcmVkaXRz", "keyType": "AVMString", "valueType": "AVMUint64"}, "cxt_asset_id": {"key": "Y3h0X2Fzc2V0X2lk", "keyType": "AVMString", "valueType": "AVMUint64"}}, "local": {}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 3}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CyAEAAEECCYEDGN4dF9hc3NldF9pZA10b3RhbF9jcmVkaXRzD3JldGlyZWRfY3JlZGl0cwQVH3x1MRhAAAkpImcqImcoImcxGRREMRhBADKCBgQ7tj7XBL1K6H0EBi1hngRboiqEBAkvWtEEFAkZUjYaAI4GABoARgCEAKUAsAC7AIAETFxhujYaAI4BAAEAKSJnKiJnKCJnI0M2GgFJFSUSRBcxADIJEkQiKGVEFEQoSwFnsTIKIrISshSyESSyECKyAbMjQzEWIwlJOBAjEkQ2GgFJFSUSRBdMOAcyChJESUQiKGVESUSxMQBLArISshSyESSyECKyAbMiKWVECClMZyNDMRYjCUk4ECQSRDEAMgkSREk4FDIKEkQ4ESIoZUQSRCNDIihlRBYrTFCwI0MiKWVEFitMULAjQyIqZUQWK0xQsCND", "clear": "C4EBQw=="}, "desc": "Marketplace for distributing $CXT carbon credits via real tokens.\n\n    Global state:\n        total_credits    \u2013 total credits distributed (informative)\n        retired_credits  \u2013 cumulative credits permanently retired\n        cxt_asset_id    \u2013 the Asset ID of the $CXT token\n    ", "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAwIDEgNCA4CiAgICBieXRlY2Jsb2NrICJjeHRfYXNzZXRfaWQiICJ0b3RhbF9jcmVkaXRzIiAicmV0aXJlZF9jcmVkaXRzIiAweDE1MWY3Yzc1CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjE1CiAgICAvLyBzZWxmLnRvdGFsX2NyZWRpdHMgPSBHbG9iYWxTdGF0ZShVSW50NjQoMCksIGtleT0idG90YWxfY3JlZGl0cyIpCiAgICBieXRlY18xIC8vICJ0b3RhbF9jcmVkaXRzIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjE2CiAgICAvLyBzZWxmLnJldGlyZWRfY3JlZGl0cyA9IEdsb2JhbFN0YXRlKFVJbnQ2NCgwKSwga2V5PSJyZXRpcmVkX2NyZWRpdHMiKQogICAgYnl0ZWNfMiAvLyAicmV0aXJlZF9jcmVkaXRzIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjE3CiAgICAvLyBzZWxmLmN4dF9hc3NldF9pZCA9IEdsb2JhbFN0YXRlKFVJbnQ2NCgwKSwga2V5PSJjeHRfYXNzZXRfaWQiKQogICAgYnl0ZWNfMCAvLyAiY3h0X2Fzc2V0X2lkIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQ2FyYm9uTWFya2V0cGxhY2UoQVJDNENvbnRyYWN0KToKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJ6IG1haW5fY3JlYXRlX05vT3BAMTIKICAgIHB1c2hieXRlc3MgMHgzYmI2M2VkNyAweGJkNGFlODdkIDB4MDYyZDYxOWUgMHg1YmEyMmE4NCAweDA5MmY1YWQxIDB4MTQwOTE5NTIgLy8gbWV0aG9kICJpbml0X2Fzc2V0KHVpbnQ2NCl2b2lkIiwgbWV0aG9kICJidXlfY3JlZGl0cyhwYXksdWludDY0KXZvaWQiLCBtZXRob2QgIm1pbnRfY3JlZGl0cyhheGZlcil2b2lkIiwgbWV0aG9kICJnZXRfYXNzZXRfaWQoKXVpbnQ2NCIsIG1ldGhvZCAiZ2V0X3RvdGFsX2NyZWRpdHMoKXVpbnQ2NCIsIG1ldGhvZCAiZ2V0X3JldGlyZWRfY3JlZGl0cygpdWludDY0IgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggaW5pdF9hc3NldCBidXlfY3JlZGl0cyBtaW50X2NyZWRpdHMgZ2V0X2Fzc2V0X2lkIGdldF90b3RhbF9jcmVkaXRzIGdldF9yZXRpcmVkX2NyZWRpdHMKICAgIGVycgoKbWFpbl9jcmVhdGVfTm9PcEAxMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQ2FyYm9uTWFya2V0cGxhY2UoQVJDNENvbnRyYWN0KToKICAgIHB1c2hieXRlcyAweDRjNWM2MWJhIC8vIG1ldGhvZCAiY3JlYXRlKCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggY3JlYXRlCiAgICBlcnIKCgovLyBjb250cmFjdC5DYXJib25NYXJrZXRwbGFjZS5jcmVhdGVbcm91dGluZ10oKSAtPiB2b2lkOgpjcmVhdGU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjIyCiAgICAvLyBzZWxmLnRvdGFsX2NyZWRpdHMudmFsdWUgPSBVSW50NjQoMCkKICAgIGJ5dGVjXzEgLy8gInRvdGFsX2NyZWRpdHMiCiAgICBpbnRjXzAgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6MjMKICAgIC8vIHNlbGYucmV0aXJlZF9jcmVkaXRzLnZhbHVlID0gVUludDY0KDApCiAgICBieXRlY18yIC8vICJyZXRpcmVkX2NyZWRpdHMiCiAgICBpbnRjXzAgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6MjQKICAgIC8vIHNlbGYuY3h0X2Fzc2V0X2lkLnZhbHVlID0gVUludDY0KDApCiAgICBieXRlY18wIC8vICJjeHRfYXNzZXRfaWQiCiAgICBpbnRjXzAgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6MTkKICAgIC8vIEBhYmltZXRob2QoY3JlYXRlPSJyZXF1aXJlIikKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCgovLyBjb250cmFjdC5DYXJib25NYXJrZXRwbGFjZS5pbml0X2Fzc2V0W3JvdXRpbmddKCkgLT4gdm9pZDoKaW5pdF9hc3NldDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6MjYKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMyAvLyA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTozMwogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIgPT0gR2xvYmFsLmNyZWF0b3JfYWRkcmVzcywgIk9ubHkgY3JlYXRvciBjYW4gaW5pdCBhc3NldCIKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyBPbmx5IGNyZWF0b3IgY2FuIGluaXQgYXNzZXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6MzQKICAgIC8vIGFzc2VydCBzZWxmLmN4dF9hc3NldF9pZC52YWx1ZSA9PSAwLCAiQXNzZXQgYWxyZWFkeSBpbml0aWFsaXplZCIKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18wIC8vICJjeHRfYXNzZXRfaWQiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYuY3h0X2Fzc2V0X2lkIGV4aXN0cwogICAgIQogICAgYXNzZXJ0IC8vIEFzc2V0IGFscmVhZHkgaW5pdGlhbGl6ZWQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6MzYKICAgIC8vIHNlbGYuY3h0X2Fzc2V0X2lkLnZhbHVlID0gYXNzZXQuaWQKICAgIGJ5dGVjXzAgLy8gImN4dF9hc3NldF9pZCIKICAgIGRpZyAxCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTozOC00MwogICAgLy8gIyBPcHQtaW4gdG8gYXNzZXQgdmlhIGlubmVyIHRyYW5zYWN0aW9uCiAgICAvLyBpdHhuLkFzc2V0VHJhbnNmZXIoCiAgICAvLyAgICAgeGZlcl9hc3NldD1hc3NldCwKICAgIC8vICAgICBhc3NldF9yZWNlaXZlcj1HbG9iYWwuY3VycmVudF9hcHBsaWNhdGlvbl9hZGRyZXNzLAogICAgLy8gICAgIGFzc2V0X2Ftb3VudD0wLAogICAgLy8gKS5zdWJtaXQoKQogICAgaXR4bl9iZWdpbgogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo0MQogICAgLy8gYXNzZXRfcmVjZWl2ZXI9R2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywKICAgIGdsb2JhbCBDdXJyZW50QXBwbGljYXRpb25BZGRyZXNzCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjQyCiAgICAvLyBhc3NldF9hbW91bnQ9MCwKICAgIGludGNfMCAvLyAwCiAgICBpdHhuX2ZpZWxkIEFzc2V0QW1vdW50CiAgICBpdHhuX2ZpZWxkIEFzc2V0UmVjZWl2ZXIKICAgIGl0eG5fZmllbGQgWGZlckFzc2V0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjM4LTM5CiAgICAvLyAjIE9wdC1pbiB0byBhc3NldCB2aWEgaW5uZXIgdHJhbnNhY3Rpb24KICAgIC8vIGl0eG4uQXNzZXRUcmFuc2ZlcigKICAgIGludGNfMiAvLyBheGZlcgogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgaW50Y18wIC8vIDAKICAgIGl0eG5fZmllbGQgRmVlCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjM4LTQzCiAgICAvLyAjIE9wdC1pbiB0byBhc3NldCB2aWEgaW5uZXIgdHJhbnNhY3Rpb24KICAgIC8vIGl0eG4uQXNzZXRUcmFuc2ZlcigKICAgIC8vICAgICB4ZmVyX2Fzc2V0PWFzc2V0LAogICAgLy8gICAgIGFzc2V0X3JlY2VpdmVyPUdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MsCiAgICAvLyAgICAgYXNzZXRfYW1vdW50PTAsCiAgICAvLyApLnN1Ym1pdCgpCiAgICBpdHhuX3N1Ym1pdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weToyNgogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gY29udHJhY3QuQ2FyYm9uTWFya2V0cGxhY2UuYnV5X2NyZWRpdHNbcm91dGluZ10oKSAtPiB2b2lkOgpidXlfY3JlZGl0czoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NDUKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIEdyb3VwSW5kZXgKICAgIGludGNfMSAvLyAxCiAgICAtCiAgICBkdXAKICAgIGd0eG5zIFR5cGVFbnVtCiAgICBpbnRjXzEgLy8gcGF5CiAgICA9PQogICAgYXNzZXJ0IC8vIHRyYW5zYWN0aW9uIHR5cGUgaXMgcGF5CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBkdXAKICAgIGxlbgogICAgaW50Y18zIC8vIDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjU1CiAgICAvLyBhc3NlcnQgYnV5ZXJfdHgucmVjZWl2ZXIgPT0gR2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywgIlBheW1lbnQgbXVzdCBiZSB0byBjb250cmFjdCIKICAgIHN3YXAKICAgIGd0eG5zIFJlY2VpdmVyCiAgICBnbG9iYWwgQ3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyBQYXltZW50IG11c3QgYmUgdG8gY29udHJhY3QKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NTYKICAgIC8vIGFzc2VydCBhbW91bnQgPiAwLCAiQW1vdW50IG11c3QgYmUgZ3JlYXRlciB0aGFuIHplcm8iCiAgICBkdXAKICAgIGFzc2VydCAvLyBBbW91bnQgbXVzdCBiZSBncmVhdGVyIHRoYW4gemVybwogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo1OAogICAgLy8gYXNzZXRfaWQgPSBzZWxmLmN4dF9hc3NldF9pZC52YWx1ZQogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzAgLy8gImN4dF9hc3NldF9pZCIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5jeHRfYXNzZXRfaWQgZXhpc3RzCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjU5CiAgICAvLyBhc3NlcnQgYXNzZXRfaWQgIT0gMCwgIkFzc2V0IG5vdCBpbml0aWFsaXplZCIKICAgIGR1cAogICAgYXNzZXJ0IC8vIEFzc2V0IG5vdCBpbml0aWFsaXplZAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo2Ni03MQogICAgLy8gIyBTZW5kICRDWFQgdG8gYnV5ZXIKICAgIC8vIGl0eG4uQXNzZXRUcmFuc2ZlcigKICAgIC8vICAgICB4ZmVyX2Fzc2V0PUFzc2V0KGFzc2V0X2lkKSwKICAgIC8vICAgICBhc3NldF9yZWNlaXZlcj1UeG4uc2VuZGVyLAogICAgLy8gICAgIGFzc2V0X2Ftb3VudD1hbW91bnQsCiAgICAvLyApLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjY5CiAgICAvLyBhc3NldF9yZWNlaXZlcj1UeG4uc2VuZGVyLAogICAgdHhuIFNlbmRlcgogICAgZGlnIDIKICAgIGl0eG5fZmllbGQgQXNzZXRBbW91bnQKICAgIGl0eG5fZmllbGQgQXNzZXRSZWNlaXZlcgogICAgaXR4bl9maWVsZCBYZmVyQXNzZXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NjYtNjcKICAgIC8vICMgU2VuZCAkQ1hUIHRvIGJ1eWVyCiAgICAvLyBpdHhuLkFzc2V0VHJhbnNmZXIoCiAgICBpbnRjXzIgLy8gYXhmZXIKICAgIGl0eG5fZmllbGQgVHlwZUVudW0KICAgIGludGNfMCAvLyAwCiAgICBpdHhuX2ZpZWxkIEZlZQogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo2Ni03MQogICAgLy8gIyBTZW5kICRDWFQgdG8gYnV5ZXIKICAgIC8vIGl0eG4uQXNzZXRUcmFuc2ZlcigKICAgIC8vICAgICB4ZmVyX2Fzc2V0PUFzc2V0KGFzc2V0X2lkKSwKICAgIC8vICAgICBhc3NldF9yZWNlaXZlcj1UeG4uc2VuZGVyLAogICAgLy8gICAgIGFzc2V0X2Ftb3VudD1hbW91bnQsCiAgICAvLyApLnN1Ym1pdCgpCiAgICBpdHhuX3N1Ym1pdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo3MwogICAgLy8gc2VsZi50b3RhbF9jcmVkaXRzLnZhbHVlICs9IGFtb3VudAogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzEgLy8gInRvdGFsX2NyZWRpdHMiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYudG90YWxfY3JlZGl0cyBleGlzdHMKICAgICsKICAgIGJ5dGVjXzEgLy8gInRvdGFsX2NyZWRpdHMiCiAgICBzd2FwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo0NQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gY29udHJhY3QuQ2FyYm9uTWFya2V0cGxhY2UubWludF9jcmVkaXRzW3JvdXRpbmddKCkgLT4gdm9pZDoKbWludF9jcmVkaXRzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo3NQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gR3JvdXBJbmRleAogICAgaW50Y18xIC8vIDEKICAgIC0KICAgIGR1cAogICAgZ3R4bnMgVHlwZUVudW0KICAgIGludGNfMiAvLyBheGZlcgogICAgPT0KICAgIGFzc2VydCAvLyB0cmFuc2FjdGlvbiB0eXBlIGlzIGF4ZmVyCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjgyCiAgICAvLyBhc3NlcnQgVHhuLnNlbmRlciA9PSBHbG9iYWwuY3JlYXRvcl9hZGRyZXNzLCAiT25seSBjcmVhdG9yIGNhbiBkZXBvc2l0IGNyZWRpdHMiCiAgICB0eG4gU2VuZGVyCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgID09CiAgICBhc3NlcnQgLy8gT25seSBjcmVhdG9yIGNhbiBkZXBvc2l0IGNyZWRpdHMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6ODMKICAgIC8vIGFzc2VydCBheGZlcl90eC5hc3NldF9yZWNlaXZlciA9PSBHbG9iYWwuY3VycmVudF9hcHBsaWNhdGlvbl9hZGRyZXNzLCAiVHJhbnNmZXIgbXVzdCBiZSB0byBjb250cmFjdCIKICAgIGR1cAogICAgZ3R4bnMgQXNzZXRSZWNlaXZlcgogICAgZ2xvYmFsIEN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MKICAgID09CiAgICBhc3NlcnQgLy8gVHJhbnNmZXIgbXVzdCBiZSB0byBjb250cmFjdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NhcmJvbl9tYXJrZXRwbGFjZS9jb250cmFjdC5weTo4NAogICAgLy8gYXNzZXJ0IGF4ZmVyX3R4LnhmZXJfYXNzZXQuaWQgPT0gc2VsZi5jeHRfYXNzZXRfaWQudmFsdWUsICJJbmNvcnJlY3QgYXNzZXQgSUQiCiAgICBndHhucyBYZmVyQXNzZXQKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18wIC8vICJjeHRfYXNzZXRfaWQiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYuY3h0X2Fzc2V0X2lkIGV4aXN0cwogICAgPT0KICAgIGFzc2VydCAvLyBJbmNvcnJlY3QgYXNzZXQgSUQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6NzUKICAgIC8vIEBhYmltZXRob2QoKQogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKCi8vIGNvbnRyYWN0LkNhcmJvbk1hcmtldHBsYWNlLmdldF9hc3NldF9pZFtyb3V0aW5nXSgpIC0+IHZvaWQ6CmdldF9hc3NldF9pZDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6OTIKICAgIC8vIHJldHVybiBzZWxmLmN4dF9hc3NldF9pZC52YWx1ZQogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzAgLy8gImN4dF9hc3NldF9pZCIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5jeHRfYXNzZXRfaWQgZXhpc3RzCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5Ojg5CiAgICAvLyBAYWJpbWV0aG9kKHJlYWRvbmx5PVRydWUpCiAgICBpdG9iCiAgICBieXRlY18zIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gY29udHJhY3QuQ2FyYm9uTWFya2V0cGxhY2UuZ2V0X3RvdGFsX2NyZWRpdHNbcm91dGluZ10oKSAtPiB2b2lkOgpnZXRfdG90YWxfY3JlZGl0czoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6OTcKICAgIC8vIHJldHVybiBzZWxmLnRvdGFsX2NyZWRpdHMudmFsdWUKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18xIC8vICJ0b3RhbF9jcmVkaXRzIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnRvdGFsX2NyZWRpdHMgZXhpc3RzCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5Ojk0CiAgICAvLyBAYWJpbWV0aG9kKHJlYWRvbmx5PVRydWUpCiAgICBpdG9iCiAgICBieXRlY18zIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gY29udHJhY3QuQ2FyYm9uTWFya2V0cGxhY2UuZ2V0X3JldGlyZWRfY3JlZGl0c1tyb3V0aW5nXSgpIC0+IHZvaWQ6CmdldF9yZXRpcmVkX2NyZWRpdHM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2FyYm9uX21hcmtldHBsYWNlL2NvbnRyYWN0LnB5OjEwMgogICAgLy8gcmV0dXJuIHNlbGYucmV0aXJlZF9jcmVkaXRzLnZhbHVlCiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMiAvLyAicmV0aXJlZF9jcmVkaXRzIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnJldGlyZWRfY3JlZGl0cyBleGlzdHMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jYXJib25fbWFya2V0cGxhY2UvY29udHJhY3QucHk6OTkKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIGl0b2IKICAgIGJ5dGVjXzMgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4K", "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [226], "errorMessage": "Amount must be greater than zero"}, {"pc": [175], "errorMessage": "Asset already initialized"}, {"pc": [232], "errorMessage": "Asset not initialized"}, {"pc": [291], "errorMessage": "Incorrect asset ID"}, {"pc": [276], "errorMessage": "Only creator can deposit credits"}, {"pc": [169], "errorMessage": "Only creator can init asset"}, {"pc": [224], "errorMessage": "Payment must be to contract"}, {"pc": [283], "errorMessage": "Transfer must be to contract"}, {"pc": [173, 230, 289, 297], "errorMessage": "check self.cxt_asset_id exists"}, {"pc": [319], "errorMessage": "check self.retired_credits exists"}, {"pc": [254, 308], "errorMessage": "check self.total_credits exists"}, {"pc": [162, 216], "errorMessage": "invalid number of bytes for arc4.uint64"}, {"pc": [270], "errorMessage": "transaction type is axfer"}, {"pc": [208], "errorMessage": "transaction type is pay"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
 APP_SPEC = algokit_utils.Arc56Contract.from_json(_APP_SPEC_JSON)
 
 def _parse_abi_args(args: object | None = None) -> list[object] | None:
@@ -65,88 +65,86 @@ def _init_dataclass(cls: type, data: dict) -> object:
     return cls(**field_values)
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class InitAssetArgs:
+    """Dataclass for init_asset arguments"""
+    asset: int
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "init_asset(uint64)void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class BuyCreditsArgs:
+    """Dataclass for buy_credits arguments"""
+    buyer_tx: algokit_utils.AppMethodCallTransactionArgument
+    amount: int
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "buy_credits(pay,uint64)void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class MintCreditsArgs:
     """Dataclass for mint_credits arguments"""
-    amount: int
+    axfer_tx: algokit_utils.AppMethodCallTransactionArgument
 
     @property
     def abi_method_signature(self) -> str:
-        return "mint_credits(uint64)void"
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class RetireCreditsArgs:
-    """Dataclass for retire_credits arguments"""
-    amount: int
-
-    @property
-    def abi_method_signature(self) -> str:
-        return "retire_credits(uint64)void"
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class GetCreditsArgs:
-    """Dataclass for get_credits arguments"""
-    account: str
-
-    @property
-    def abi_method_signature(self) -> str:
-        return "get_credits(address)uint64"
-
-
-class _CarbonMarketplaceOptIn:
-    def __init__(self, app_client: algokit_utils.AppClient):
-        self.app_client = app_client
-
-    def bare(
-        self, params: algokit_utils.AppClientBareCallParams | None = None
-    ) -> algokit_utils.AppCallParams:
-        return self.app_client.params.bare.opt_in(params)
+        return "mint_credits(axfer)void"
 
 
 class CarbonMarketplaceParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    @property
-    def opt_in(self) -> "_CarbonMarketplaceOptIn":
-        return _CarbonMarketplaceOptIn(self.app_client)
+    def init_asset(
+        self,
+        args: tuple[int] | InitAssetArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "init_asset(uint64)void",
+            "args": method_args,
+        }))
+
+    def buy_credits(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | BuyCreditsArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "buy_credits(pay,uint64)void",
+            "args": method_args,
+        }))
 
     def mint_credits(
         self,
-        args: tuple[int] | MintCreditsArgs,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | MintCreditsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.AppCallMethodCallParams:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "mint_credits(uint64)void",
+            "method": "mint_credits(axfer)void",
             "args": method_args,
         }))
 
-    def retire_credits(
+    def get_asset_id(
         self,
-        args: tuple[int] | RetireCreditsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.AppCallMethodCallParams:
-        method_args = _parse_abi_args(args)
+    
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "retire_credits(uint64)void",
-            "args": method_args,
-        }))
-
-    def get_credits(
-        self,
-        args: tuple[str] | GetCreditsArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> algokit_utils.AppCallMethodCallParams:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "get_credits(address)uint64",
-            "args": method_args,
+            "method": "get_asset_id()uint64",
         }))
 
     def get_total_credits(
@@ -193,59 +191,58 @@ class CarbonMarketplaceParams:
         )
 
 
-class _CarbonMarketplaceOptInTransaction:
-    def __init__(self, app_client: algokit_utils.AppClient):
-        self.app_client = app_client
-
-    def bare(self, params: algokit_utils.AppClientBareCallParams | None = None) -> Transaction:
-        return self.app_client.create_transaction.bare.opt_in(params)
-
-
 class CarbonMarketplaceCreateTransactionParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    @property
-    def opt_in(self) -> "_CarbonMarketplaceOptInTransaction":
-        return _CarbonMarketplaceOptInTransaction(self.app_client)
+    def init_asset(
+        self,
+        args: tuple[int] | InitAssetArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "init_asset(uint64)void",
+            "args": method_args,
+        }))
+
+    def buy_credits(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | BuyCreditsArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "buy_credits(pay,uint64)void",
+            "args": method_args,
+        }))
 
     def mint_credits(
         self,
-        args: tuple[int] | MintCreditsArgs,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | MintCreditsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.BuiltTransactions:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "mint_credits(uint64)void",
+            "method": "mint_credits(axfer)void",
             "args": method_args,
         }))
 
-    def retire_credits(
+    def get_asset_id(
         self,
-        args: tuple[int] | RetireCreditsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.BuiltTransactions:
-        method_args = _parse_abi_args(args)
+    
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "retire_credits(uint64)void",
-            "args": method_args,
-        }))
-
-    def get_credits(
-        self,
-        args: tuple[str] | GetCreditsArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> algokit_utils.BuiltTransactions:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "get_credits(address)uint64",
-            "args": method_args,
+            "method": "get_asset_id()uint64",
         }))
 
     def get_total_credits(
@@ -292,34 +289,45 @@ class CarbonMarketplaceCreateTransactionParams:
         )
 
 
-class _CarbonMarketplaceOptInSend:
-    def __init__(self, app_client: algokit_utils.AppClient):
-        self.app_client = app_client
-
-    def bare(
-        self,
-        params: algokit_utils.AppClientBareCallParams | None = None,
-        send_params: algokit_utils.SendParams | None = None,
-        
-    ) -> algokit_utils.SendAppTransactionResult:
-        return self.app_client.send.bare.opt_in(
-            params=params,
-            send_params=send_params,
-            
-        )
-
-
 class CarbonMarketplaceSend:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    @property
-    def opt_in(self) -> "_CarbonMarketplaceOptInSend":
-        return _CarbonMarketplaceOptInSend(self.app_client)
+    def init_asset(
+        self,
+        args: tuple[int] | InitAssetArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "init_asset(uint64)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def buy_credits(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | BuyCreditsArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "buy_credits(pay,uint64)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
 
     def mint_credits(
         self,
-        args: tuple[int] | MintCreditsArgs,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | MintCreditsArgs,
         params: algokit_utils.CommonAppCallParams | None = None,
         send_params: algokit_utils.SendParams | None = None
     ) -> algokit_utils.SendAppTransactionResult[None]:
@@ -327,40 +335,22 @@ class CarbonMarketplaceSend:
         params = params or algokit_utils.CommonAppCallParams()
         response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "mint_credits(uint64)void",
+            "method": "mint_credits(axfer)void",
             "args": method_args,
         }), send_params=send_params)
         parsed_response = response
         return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
 
-    def retire_credits(
+    def get_asset_id(
         self,
-        args: tuple[int] | RetireCreditsArgs,
-        params: algokit_utils.CommonAppCallParams | None = None,
-        send_params: algokit_utils.SendParams | None = None
-    ) -> algokit_utils.SendAppTransactionResult[None]:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "retire_credits(uint64)void",
-            "args": method_args,
-        }), send_params=send_params)
-        parsed_response = response
-        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
-
-    def get_credits(
-        self,
-        args: tuple[str] | GetCreditsArgs,
         params: algokit_utils.CommonAppCallParams | None = None,
         send_params: algokit_utils.SendParams | None = None
     ) -> algokit_utils.SendAppTransactionResult[int]:
-        method_args = _parse_abi_args(args)
+    
         params = params or algokit_utils.CommonAppCallParams()
         response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "get_credits(address)uint64",
-            "args": method_args,
+            "method": "get_asset_id()uint64",
         }), send_params=send_params)
         parsed_response = response
         return typing.cast(algokit_utils.SendAppTransactionResult[int], parsed_response)
@@ -422,10 +412,7 @@ class GlobalStateValue(typing.TypedDict):
     """Shape of global_state state key values"""
     total_credits: int
     retired_credits: int
-
-class LocalStateValue(typing.TypedDict):
-    """Shape of local_state state key values"""
-    credits_minted: int
+    cxt_asset_id: int
 
 class CarbonMarketplaceState:
     """Methods to access state for the current CarbonMarketplace app"""
@@ -439,12 +426,6 @@ class CarbonMarketplaceState:
     ) -> "_GlobalState":
             """Methods to access global_state for the current app"""
             return _GlobalState(self.app_client)
-
-    def local_state(
-        self, address: str
-    ) -> "_LocalState":
-            """Methods to access local_state for the current app"""
-            return _LocalState(self.app_client, address)
 
 class _GlobalState:
     def __init__(self, app_client: algokit_utils.AppClient):
@@ -485,33 +466,10 @@ class _GlobalState:
             return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
         return typing.cast(int, value)
 
-class _LocalState:
-    def __init__(self, app_client: algokit_utils.AppClient, address: str):
-        self.app_client = app_client
-        self.address = address
-        # Pre-generated mapping of value types to their struct classes
-        self._struct_classes: dict[str, typing.Type[typing.Any]] = {}
-
-    def get_all(self) -> LocalStateValue:
-        """Get all current keyed values from local_state state"""
-        result = self.app_client.state.local_state(self.address).get_all()
-        if not result:
-            return typing.cast(LocalStateValue, {})
-
-        converted = {}
-        for key, value in result.items():
-            key_info = self.app_client.app_spec.state.keys.local_state.get(key)
-            struct_class = self._struct_classes.get(key_info.value_type) if key_info else None
-            converted[key] = (
-                _init_dataclass(struct_class, value) if struct_class and isinstance(value, dict)
-                else value
-            )
-        return typing.cast(LocalStateValue, converted)
-
     @property
-    def credits_minted(self) -> int:
-        """Get the current value of the credits_minted key in local_state state"""
-        value = self.app_client.state.local_state(self.address).get_value("credits_minted")
+    def cxt_asset_id(self) -> int:
+        """Get the current value of the cxt_asset_id key in global_state state"""
+        value = self.app_client.state.global_state.get_value("cxt_asset_id")
         if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
             return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
         return typing.cast(int, value)
@@ -662,19 +620,25 @@ class CarbonMarketplaceClient:
     @typing.overload
     def decode_return_value(
         self,
-        method: typing.Literal["mint_credits(uint64)void"],
+        method: typing.Literal["init_asset(uint64)void"],
         return_value: algokit_utils.ABIReturn | None
     ) -> None: ...
     @typing.overload
     def decode_return_value(
         self,
-        method: typing.Literal["retire_credits(uint64)void"],
+        method: typing.Literal["buy_credits(pay,uint64)void"],
         return_value: algokit_utils.ABIReturn | None
     ) -> None: ...
     @typing.overload
     def decode_return_value(
         self,
-        method: typing.Literal["get_credits(address)uint64"],
+        method: typing.Literal["mint_credits(axfer)void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["get_asset_id()uint64"],
         return_value: algokit_utils.ABIReturn | None
     ) -> int | None: ...
     @typing.overload
@@ -890,61 +854,80 @@ class CarbonMarketplaceFactoryCreateParams:
             algokit_utils.AppFactoryCreateParams(**dataclasses.asdict(params)),
             compilation_params=compilation_params)
 
+    def init_asset(
+        self,
+        args: tuple[int] | InitAssetArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the init_asset(uint64)void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "init_asset(uint64)void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def buy_credits(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | BuyCreditsArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the buy_credits(pay,uint64)void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "buy_credits(pay,uint64)void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
     def mint_credits(
         self,
-        args: tuple[int] | MintCreditsArgs,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | MintCreditsArgs,
         *,
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None
     ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the mint_credits(uint64)void ABI method"""
+        """Creates a new instance using the mint_credits(axfer)void ABI method"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         return self.app_factory.params.create(
             algokit_utils.AppFactoryCreateMethodCallParams(
                 **{
                 **dataclasses.asdict(params),
-                "method": "mint_credits(uint64)void",
+                "method": "mint_credits(axfer)void",
                 "args": _parse_abi_args(args),
                 }
             ),
             compilation_params=compilation_params
         )
 
-    def retire_credits(
+    def get_asset_id(
         self,
-        args: tuple[int] | RetireCreditsArgs,
         *,
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None
     ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the retire_credits(uint64)void ABI method"""
+        """Creates a new instance using the get_asset_id()uint64 ABI method"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         return self.app_factory.params.create(
             algokit_utils.AppFactoryCreateMethodCallParams(
                 **{
                 **dataclasses.asdict(params),
-                "method": "retire_credits(uint64)void",
-                "args": _parse_abi_args(args),
-                }
-            ),
-            compilation_params=compilation_params
-        )
-
-    def get_credits(
-        self,
-        args: tuple[str] | GetCreditsArgs,
-        *,
-        params: algokit_utils.CommonAppCallCreateParams | None = None,
-        compilation_params: algokit_utils.AppClientCompilationParams | None = None
-    ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the get_credits(address)uint64 ABI method"""
-        params = params or algokit_utils.CommonAppCallCreateParams()
-        return self.app_factory.params.create(
-            algokit_utils.AppFactoryCreateMethodCallParams(
-                **{
-                **dataclasses.asdict(params),
-                "method": "get_credits(address)uint64",
-                "args": _parse_abi_args(args),
+                "method": "get_asset_id()uint64",
+                "args": None,
                 }
             ),
             compilation_params=compilation_params
@@ -1137,11 +1120,6 @@ class CarbonMarketplaceFactorySendCreate:
             )
 
 
-class _CarbonMarketplaceOptInComposer:
-    def __init__(self, composer: "CarbonMarketplaceComposer"):
-        self.composer = composer
-
-
 class CarbonMarketplaceComposer:
     """Composer for creating transaction groups for CarbonMarketplace contract calls"""
 
@@ -1150,13 +1128,45 @@ class CarbonMarketplaceComposer:
         self._composer = client.algorand.new_group()
         self._result_mappers: list[typing.Callable[[algokit_utils.ABIReturn | None], object] | None] = []
 
-    @property
-    def opt_in(self) -> "_CarbonMarketplaceOptInComposer":
-        return _CarbonMarketplaceOptInComposer(self)
+    def init_asset(
+        self,
+        args: tuple[int] | InitAssetArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "CarbonMarketplaceComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.init_asset(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "init_asset(uint64)void", v
+            )
+        )
+        return self
+
+    def buy_credits(
+        self,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument, int] | BuyCreditsArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "CarbonMarketplaceComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.buy_credits(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "buy_credits(pay,uint64)void", v
+            )
+        )
+        return self
 
     def mint_credits(
         self,
-        args: tuple[int] | MintCreditsArgs,
+        args: tuple[algokit_utils.AppMethodCallTransactionArgument] | MintCreditsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> "CarbonMarketplaceComposer":
         self._composer.add_app_call_method_call(
@@ -1167,43 +1177,24 @@ class CarbonMarketplaceComposer:
         )
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
-                "mint_credits(uint64)void", v
+                "mint_credits(axfer)void", v
             )
         )
         return self
 
-    def retire_credits(
+    def get_asset_id(
         self,
-        args: tuple[int] | RetireCreditsArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> "CarbonMarketplaceComposer":
         self._composer.add_app_call_method_call(
-            self.client.params.retire_credits(
-                args=args,
+            self.client.params.get_asset_id(
+                
                 params=params,
             )
         )
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
-                "retire_credits(uint64)void", v
-            )
-        )
-        return self
-
-    def get_credits(
-        self,
-        args: tuple[str] | GetCreditsArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> "CarbonMarketplaceComposer":
-        self._composer.add_app_call_method_call(
-            self.client.params.get_credits(
-                args=args,
-                params=params,
-            )
-        )
-        self._result_mappers.append(
-            lambda v: self.client.decode_return_value(
-                "get_credits(address)uint64", v
+                "get_asset_id()uint64", v
             )
         )
         return self

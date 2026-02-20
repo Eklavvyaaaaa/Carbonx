@@ -8,35 +8,35 @@ const FEATURED_PROJECTS = [
         id: 1, title: "Gujarat Solar Park", category: "Renewable", location: "India",
         credits: "120k", risk: "Low", price: "8.00",
         description: "One of the world's largest solar parks generating clean energy and displacing coal-based power.",
-        revenue: "$960K/yr",
+        revenue: "₹7.9Cr/yr",
         image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 2, title: "Methane Capture India", category: "Methane", location: "India",
         credits: "45k", risk: "Low", price: "11.00",
         description: "Captures methane from landfills and converts it into usable energy, reducing potent greenhouse emissions.",
-        revenue: "$495K/yr",
+        revenue: "₹4.1Cr/yr",
         image: "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 3, title: "Biochar Sequestration", category: "Nature-Based", location: "Brazil",
         credits: "25k", risk: "Medium", price: "18.00",
         description: "Converts agricultural waste into biochar, locking carbon in soil for centuries while boosting crop yields.",
-        revenue: "$450K/yr",
+        revenue: "₹3.7Cr/yr",
         image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 4, title: "Amazon Reforestation", category: "Nature-Based", location: "Brazil",
         credits: "50k", risk: "Low", price: "12.50",
         description: "Large-scale tree planting in deforested areas of the Amazon basin, restoring biodiversity and carbon sinks.",
-        revenue: "$625K/yr",
+        revenue: "₹5.2Cr/yr",
         image: "https://images.unsplash.com/photo-1542601906990-b4d3fb7d5c73?auto=format&fit=crop&q=80&w=800"
     },
     {
         id: 5, title: "Clean Cookstoves", category: "Community", location: "Kenya",
         credits: "30k", risk: "Medium", price: "15.00",
         description: "Distributing efficient cookstoves to rural communities, reducing indoor air pollution and deforestation.",
-        revenue: "$450K/yr",
+        revenue: "₹3.7Cr/yr",
         image: "https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?auto=format&fit=crop&q=80&w=800"
     }
 ];
@@ -141,7 +141,7 @@ export default function Home() {
                             <span className="stat-desc">Increase in emissions since 1990</span>
                         </div>
                         <div className="stat-box animate-up delay-1">
-                            <span className="stat-number"><AnimatedCounter target={50} prefix="$" suffix="B+" /></span>
+                            <span className="stat-number"><AnimatedCounter target={40} prefix="₹" suffix="L Cr+" /></span>
                             <span className="stat-desc">Projected Carbon Market by 2030</span>
                         </div>
                         <div className="stat-box animate-up delay-2">
@@ -153,37 +153,122 @@ export default function Home() {
             </section>
 
             {/* ─── How It Works ────────────────────────────── */}
-            <section className="section section-bg">
+            <section className="section section-bg hiw-section">
                 <div className="container">
                     <div className="text-center mb-12">
-                        <span className="section-tag">Simple Process</span>
-                        <h2>How It Works</h2>
-                        <p className="text-muted mt-2">Your journey to Net Zero in three simple steps</p>
+                        <div className="hiw-accent-line"></div>
+                        <h2 className="hiw-title">How It Works</h2>
+                        <p className="text-muted mt-2 hiw-subtitle">
+                            Your journey to Net Zero — from measuring your footprint to earning a verified certificate
+                        </p>
                     </div>
-                    <div className="process-grid">
-                        <div className="process-card">
-                            <div className="process-step">01</div>
-                            <div className="process-icon-wrap">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><path d="M17 8l-5-5-5 5" /><path d="M12 3v12" /></svg>
+
+                    <div className="hiw-flow">
+                        {/* Step 1 — Calculate */}
+                        <div className="hiw-step">
+                            <div className="hiw-card-wrap">
+                                <div className="hiw-card">
+                                    <div className="hiw-card-header">
+                                        <div className="hiw-dots"><span></span><span></span><span></span></div>
+                                        <div className="hiw-header-bar"></div>
+                                    </div>
+                                    <div className="hiw-card-body">
+                                        <div className="hiw-row"><div className="hiw-block green small"></div><div className="hiw-line w60"></div></div>
+                                        <div className="hiw-row"><div className="hiw-line w80"></div></div>
+                                        <div className="hiw-row"><div className="hiw-block blue small"></div><div className="hiw-line w40"></div></div>
+                                        <div className="hiw-row"><div className="hiw-line w70"></div></div>
+                                        <div className="hiw-row"><div className="hiw-block green small"></div><div className="hiw-block blue medium"></div></div>
+                                    </div>
+                                </div>
                             </div>
-                            <h3>Measure</h3>
-                            <p>Calculate your carbon footprint using our tools based on global emission standards and frameworks.</p>
+                            <p className="hiw-label">Calculate Footprint</p>
                         </div>
-                        <div className="process-card">
-                            <div className="process-step">02</div>
-                            <div className="process-icon-wrap">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                            </div>
-                            <h3>Reduce</h3>
-                            <p>Invest in verified green projects like reforestation and renewable energy to offset your emissions.</p>
+
+                        {/* Arrow 1→2 */}
+                        <div className="hiw-arrow">
+                            <svg viewBox="0 0 80 60" fill="none">
+                                <path d="M5 50 Q40 -10 75 30" stroke="var(--c-accent)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" opacity="0.5" />
+                                <polygon points="72,25 80,32 72,35" fill="var(--c-accent)" opacity="0.5" />
+                            </svg>
                         </div>
-                        <div className="process-card">
-                            <div className="process-step">03</div>
-                            <div className="process-icon-wrap">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" strokeWidth="2" strokeLinecap="round"><path d="M12 2v20m5-17H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H7" /></svg>
+
+                        {/* Step 2 — Choose Projects */}
+                        <div className="hiw-step">
+                            <div className="hiw-card-wrap">
+                                <div className="hiw-card">
+                                    <div className="hiw-card-header">
+                                        <div className="hiw-dots"><span></span><span></span><span></span></div>
+                                        <div className="hiw-header-bar"></div>
+                                    </div>
+                                    <div className="hiw-card-body">
+                                        <div className="hiw-row"><div className="hiw-line w50"></div><div className="hiw-block green medium"></div></div>
+                                        <div className="hiw-row"><div className="hiw-block blue small"></div><div className="hiw-line w60"></div></div>
+                                        <div className="hiw-row"><div className="hiw-line w30"></div><div className="hiw-block green small"></div><div className="hiw-block blue small"></div></div>
+                                        <div className="hiw-row"><div className="hiw-block green medium"></div><div className="hiw-line w40"></div></div>
+                                        <div className="hiw-row"><div className="hiw-line w80"></div></div>
+                                    </div>
+                                </div>
                             </div>
-                            <h3>Trade</h3>
-                            <p>Earn, buy, and sell tokenized carbon credits on our secure Algorand blockchain marketplace.</p>
+                            <p className="hiw-label">Choose Projects</p>
+                        </div>
+
+                        {/* Arrow 2→3 */}
+                        <div className="hiw-arrow">
+                            <svg viewBox="0 0 80 60" fill="none">
+                                <path d="M5 30 Q40 70 75 20" stroke="var(--c-accent)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" opacity="0.5" />
+                                <polygon points="72,15 80,22 73,26" fill="var(--c-accent)" opacity="0.5" />
+                            </svg>
+                        </div>
+
+                        {/* Step 3 — Buy Credits */}
+                        <div className="hiw-step">
+                            <div className="hiw-card-wrap">
+                                <div className="hiw-card">
+                                    <div className="hiw-card-header">
+                                        <div className="hiw-dots"><span></span><span></span><span></span></div>
+                                        <div className="hiw-header-bar"></div>
+                                    </div>
+                                    <div className="hiw-card-body">
+                                        <div className="hiw-row"><div className="hiw-block green small"></div><div className="hiw-line w40"></div><div className="hiw-block blue small"></div></div>
+                                        <div className="hiw-row"><div className="hiw-line w70"></div></div>
+                                        <div className="hiw-row"><div className="hiw-block blue medium"></div><div className="hiw-line w30"></div></div>
+                                        <div className="hiw-row"><div className="hiw-line w50"></div><div className="hiw-block green small"></div></div>
+                                        <div className="hiw-row"><div className="hiw-block blue small"></div><div className="hiw-line w60"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="hiw-label">Buy Credits</p>
+                        </div>
+
+                        {/* Arrow 3→4 */}
+                        <div className="hiw-arrow">
+                            <svg viewBox="0 0 80 60" fill="none">
+                                <path d="M5 50 Q40 -10 75 30" stroke="var(--c-accent)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" opacity="0.5" />
+                                <polygon points="72,25 80,32 72,35" fill="var(--c-accent)" opacity="0.5" />
+                            </svg>
+                        </div>
+
+                        {/* Step 4 — Get Certified */}
+                        <div className="hiw-step">
+                            <div className="hiw-card-wrap">
+                                <div className="hiw-card hiw-card-final">
+                                    <div className="hiw-card-header">
+                                        <div className="hiw-dots"><span></span><span></span><span></span></div>
+                                        <div className="hiw-header-bar"></div>
+                                    </div>
+                                    <div className="hiw-card-body">
+                                        <div className="hiw-row"><div className="hiw-line w60"></div></div>
+                                        <div className="hiw-row"><div className="hiw-line w40"></div></div>
+                                        <div className="hiw-row center"><div className="hiw-block green small"></div><div className="hiw-block green small"></div><div className="hiw-block green small"></div></div>
+                                        <div className="hiw-row"><div className="hiw-line w70"></div></div>
+                                        <div className="hiw-row"><div className="hiw-block blue medium"></div></div>
+                                    </div>
+                                </div>
+                                <div className="hiw-check">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                                </div>
+                            </div>
+                            <p className="hiw-label">Get Certified</p>
                         </div>
                     </div>
                 </div>
