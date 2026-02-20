@@ -1,7 +1,7 @@
 // Contract-specific helpers for the three CarbonX smart contracts
 import { APP_IDS, ABI_METHODS } from '../config';
 import { callMethod, simulateReadonly, readGlobalState, algodClient, getIndexerClient } from './algorand';
-import { signTransactions } from './wallet';
+import { signTransactions, peraAtcSigner } from './wallet';
 
 import algosdk from 'algosdk';
 
@@ -22,7 +22,7 @@ export async function optInToCXT(sender) {
     try {
         // Get transaction parameters
         const params = await algodClient.getTransactionParams().do();
-        
+
         // Ensure Testnet parameters are set
         if (!params.genesisHash) {
             params.genesisHash = 'SGO1GKSzyE7IEPItTxCBywTZ644S4o/W88un3Ry7jd0=';
@@ -64,7 +64,7 @@ export async function optInToCXT(sender) {
         }
 
         console.log('[DEBUG] Transaction signed. Broadcasting to network...');
-        
+
         // Send the signed transaction(s) to the network
         // sendRawTransaction accepts Uint8Array[] directly
         const { txId } = await algodClient.sendRawTransaction(signedTxns).do();
@@ -79,7 +79,7 @@ export async function optInToCXT(sender) {
         return confirmation;
     } catch (err) {
         console.error('[DEBUG] Error during opt-in:', err);
-        
+
         // Re-throw with more context if needed
         if (err.message) {
             throw err;
@@ -102,10 +102,10 @@ export async function checkCXTOptIn(address) {
         const indexer = getIndexerClient();
         const accountInfo = await indexer.lookupAccountByID(address).do();
         const assets = accountInfo.account?.assets || [];
-        
+
         const assetId = Number(APP_IDS.CXT_ASSET_ID);
         const isOptedIn = assets.some(a => Number(a['asset-id']) === assetId);
-        
+
         console.log(`[DEBUG] checkCXTOptIn for ${address}:`, isOptedIn);
         return isOptedIn;
     } catch (e) {
@@ -124,21 +124,7 @@ export async function checkCXTOptIn(address) {
 
 // ─── CarbonMarketplace ──────────────────────────────────────────────
 
-/**
- * Create a TransactionWithSigner for use with AtomicTransactionComposer.
- * Signs the full group once so Pera gets both txns in one approval.
- */
-function makeWalletTransactionWithSigner(sender) {
-    return {
-        signer: async (txnGroup, indexesToSign) => {
-            // Sign the full group so the wallet sees both txns in one approval
-            const fullGroup = txnGroup.map(t => ({ txn: t, signers: [sender] }));
-            const signedAll = await signTransactions(fullGroup);
-            // Return only the txns we were asked to sign, in indexesToSign order
-            return indexesToSign.map(i => signedAll[i]);
-        }
-    };
-}
+
 
 export async function mintCredits(sender, amount) {
     const params = await algodClient.getTransactionParams().do();
@@ -155,16 +141,29 @@ export async function mintCredits(sender, amount) {
 
     const axferWithSigner = {
         txn: axferTxn,
-        ...makeWalletTransactionWithSigner(sender)
+        signer: peraAtcSigner
     };
 
-    return callMethod(
-        APP_IDS.CARBON_MARKETPLACE,
-        sender,
-        ABI_METHODS.MARKETPLACE.mint_credits,
-        [axferWithSigner],
-        { assets: [Number(APP_IDS.CXT_ASSET_ID)] }
-    );
+    try {
+        const result = await callMethod(
+            APP_IDS.CARBON_MARKETPLACE,
+            sender,
+            ABI_METHODS.MARKETPLACE.mint_credits,
+            [axferWithSigner],
+            { assets: [Number(APP_IDS.CXT_ASSET_ID)] }
+        );
+        console.log('[DEBUG] mintCredits successful:', result);
+        return result;
+    } catch (error) {
+        console.error('[DEBUG] mintCredits failed! Error details:', error);
+
+        // Extract Algorand node error if available
+        if (error?.response?.body?.message) {
+            console.error('[DEBUG] Node error message:', error.response.body.message);
+            throw new Error(`Smart Contract Error: ${error.response.body.message}`);
+        }
+        throw error;
+    }
 }
 
 export async function buyCreditsWithCost(sender, creditAmount, totalCostMicroAlgos) {
@@ -186,7 +185,7 @@ export async function buyCreditsWithCost(sender, creditAmount, totalCostMicroAlg
 
     const payWithSigner = {
         txn: payTxn,
-        ...makeWalletTransactionWithSigner(sender)
+        signer: peraAtcSigner
     };
 
     return callMethod(
@@ -337,14 +336,25 @@ export async function retireCreditsRM(sender, amount) {
         suggestedParams: params,
     });
 
-    return callMethod(
-        APP_IDS.RETIREMENT_MANAGER,
-        sender,
-        ABI_METHODS.RETIREMENT_MANAGER.retire_credits,
-        [
-            { txn: axferTxn, sign: true }
-        ]
-    );
+    try {
+        const result = await callMethod(
+            APP_IDS.RETIREMENT_MANAGER,
+            sender,
+            ABI_METHODS.RETIREMENT_MANAGER.retire_credits,
+            [
+                { txn: axferTxn, signer: peraAtcSigner }
+            ]
+        );
+        console.log('[DEBUG] retireCredits successful:', result);
+        return result;
+    } catch (error) {
+        console.error('[DEBUG] retireCredits failed! Error details:', error);
+        if (error?.response?.body?.message) {
+            console.error('[DEBUG] Node error message:', error.response.body.message);
+            throw new Error(`Smart Contract Error: ${error.response.body.message}`);
+        }
+        throw error;
+    }
 }
 
 export const retireCredits = retireCreditsRM;

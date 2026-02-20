@@ -78,7 +78,7 @@ export function getConnectedAccount() {
  */
 export async function signTransactions(txnGroups) {
     console.log('[DEBUG] signTransactions called with:', txnGroups?.length, 'transactions');
-    
+
     if (!peraWallet.isConnected && !connectedAccount) {
         const error = new Error('Wallet is not connected. Please connect your wallet first.');
         console.error('[DEBUG] Signing failure:', error);
@@ -108,9 +108,9 @@ export async function signTransactions(txnGroups) {
 
         console.log('[DEBUG] Calling peraWallet.signTransaction with', signerTransactions.length, 'transaction(s) in 1 group');
         const signedTxns = await peraWallet.signTransaction(txGroupsForPera);
-        
+
         console.log('[DEBUG] signTransaction returned', signedTxns?.length, 'signed transaction(s)');
-        
+
         if (!signedTxns || signedTxns.length === 0) {
             throw new Error('No signed transactions returned from wallet');
         }
@@ -120,7 +120,7 @@ export async function signTransactions(txnGroups) {
         return signedTxns;
     } catch (err) {
         console.error('[DEBUG] signTransactions error:', err);
-        
+
         // Provide user-friendly error messages
         if (err?.message?.includes('User rejected') || err?.message?.includes('User cancelled')) {
             throw new Error('Transaction was cancelled by user');
@@ -128,9 +128,26 @@ export async function signTransactions(txnGroups) {
         if (err?.message?.includes('not connected')) {
             throw new Error('Wallet is not connected. Please connect your wallet first.');
         }
-        
+
         throw err;
     }
 }
+
+/**
+ * Shared signer reference for AtomicTransactionComposer to avoid disjointed signing prompts.
+ * ATC will group contiguous signers by reference, passing all indices at once.
+ */
+export const peraAtcSigner = async (txnGroup, indexesToSign) => {
+    if (!connectedAccount) {
+        throw new Error('Wallet is not connected. Please connect your wallet first.');
+    }
+    const txnsToSign = txnGroup.map(txn => ({
+        txn: txn,
+        signers: [connectedAccount]
+    }));
+
+    const signedTxns = await signTransactions(txnsToSign);
+    return indexesToSign.map(i => signedTxns[i]);
+};
 
 export { peraWallet };

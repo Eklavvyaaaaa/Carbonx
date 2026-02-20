@@ -3,7 +3,7 @@ window.Buffer = Buffer;
 // Algorand client wrapper for interacting with the blockchain
 import algosdk from 'algosdk';
 import { ALGORAND_NODE, ALGORAND_INDEXER, APP_IDS } from '../config';
-import { signTransactions } from './wallet';
+import { signTransactions, peraAtcSigner } from './wallet';
 
 // Primary Node: AlgoNode (Public & Permissive)
 let activeAlgodNode = ALGORAND_NODE;
@@ -84,13 +84,7 @@ export async function callMethod(appId, sender, methodSignature, args = [], opti
         method,
         sender,
         suggestedParams,
-        signer: async (txnGroup, indexesToSign) => {
-            const txnsToSign = indexesToSign.map(i => ({
-                txn: txnGroup[i],
-                signers: [sender]
-            }));
-            return await signTransactions(txnsToSign);
-        },
+        signer: peraAtcSigner,
         methodArgs: args,
         onComplete: options.onComplete || algosdk.OnApplicationComplete.NoOpOC,
         boxes: options.boxes,

@@ -3,40 +3,43 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 4 8
-    bytecblock "cxt_asset_id" "total_credits" "retired_credits" 0x151f7c75
+    intcblock 0 1 8 1000000
+    bytecblock "total_credits" "user_credits" "retired_credits" "current_price" "user_retired" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/carbon_marketplace/contract.py:15
+    // smart_contracts/carbon_marketplace/contract.py:21-22
+    // # Inventory & Global Metrics
     // self.total_credits = GlobalState(UInt64(0), key="total_credits")
-    bytec_1 // "total_credits"
+    bytec_0 // "total_credits"
     intc_0 // 0
     app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:16
+    // smart_contracts/carbon_marketplace/contract.py:23
     // self.retired_credits = GlobalState(UInt64(0), key="retired_credits")
     bytec_2 // "retired_credits"
     intc_0 // 0
     app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:17
-    // self.cxt_asset_id = GlobalState(UInt64(0), key="cxt_asset_id")
-    bytec_0 // "cxt_asset_id"
-    intc_0 // 0
+    // smart_contracts/carbon_marketplace/contract.py:24
+    // self.current_price = GlobalState(UInt64(1_000_000), key="current_price")
+    bytec_3 // "current_price"
+    intc_3 // 1000000
     app_global_put
 
 main_after_if_else@2:
     // smart_contracts/carbon_marketplace/contract.py:5
     // class CarbonMarketplace(ARC4Contract):
+    txn NumAppArgs
+    bz main_opt_in@19
     txn OnCompletion
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@12
-    pushbytess 0x3bb63ed7 0xbd4ae87d 0x062d619e 0x5ba22a84 0x092f5ad1 0x14091952 // method "init_asset(uint64)void", method "buy_credits(pay,uint64)void", method "mint_credits(axfer)void", method "get_asset_id()uint64", method "get_total_credits()uint64", method "get_retired_credits()uint64"
+    bz main_create_NoOp@15
+    pushbytess 0xcc760037 0x29a51908 0xbd4ae87d 0x6d10009f 0xabf2598d 0x66a95a47 0x211d50ce 0x4b818bc9 // method "set_price(uint64)void", method "mint_credits(uint64)void", method "buy_credits(pay,uint64)void", method "retire_credits(uint64)void", method "get_user_balance(address)uint64", method "get_user_retired(address)uint64", method "get_current_price()uint64", method "get_market_stats()(uint64,uint64)"
     txna ApplicationArgs 0
-    match init_asset buy_credits mint_credits get_asset_id get_total_credits get_retired_credits
+    match set_price mint_credits buy_credits retire_credits get_user_balance get_user_retired get_current_price get_market_stats
     err
 
-main_create_NoOp@12:
+main_create_NoOp@15:
     // smart_contracts/carbon_marketplace/contract.py:5
     // class CarbonMarketplace(ARC4Contract):
     pushbytes 0x4c5c61ba // method "create()void"
@@ -44,93 +47,116 @@ main_create_NoOp@12:
     match create
     err
 
+main_opt_in@19:
+    // smart_contracts/carbon_marketplace/contract.py:37
+    // @baremethod(allow_actions=["OptIn"])
+    txn OnCompletion
+    intc_1 // OptIn
+    ==
+    txn ApplicationID
+    &&
+    assert
+    // smart_contracts/carbon_marketplace/contract.py:40
+    // self.user_credits[Txn.sender] = UInt64(0)
+    txn Sender
+    bytec_1 // "user_credits"
+    intc_0 // 0
+    app_local_put
+    // smart_contracts/carbon_marketplace/contract.py:41
+    // self.user_retired[Txn.sender] = UInt64(0)
+    txn Sender
+    bytec 4 // "user_retired"
+    intc_0 // 0
+    app_local_put
+    // smart_contracts/carbon_marketplace/contract.py:37
+    // @baremethod(allow_actions=["OptIn"])
+    intc_1 // 1
+    return
+
 
 // contract.CarbonMarketplace.create[routing]() -> void:
 create:
-    // smart_contracts/carbon_marketplace/contract.py:22
+    // smart_contracts/carbon_marketplace/contract.py:33
     // self.total_credits.value = UInt64(0)
-    bytec_1 // "total_credits"
+    bytec_0 // "total_credits"
     intc_0 // 0
     app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:23
+    // smart_contracts/carbon_marketplace/contract.py:34
     // self.retired_credits.value = UInt64(0)
     bytec_2 // "retired_credits"
     intc_0 // 0
     app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:24
-    // self.cxt_asset_id.value = UInt64(0)
-    bytec_0 // "cxt_asset_id"
-    intc_0 // 0
+    // smart_contracts/carbon_marketplace/contract.py:35
+    // self.current_price.value = UInt64(1_000_000) # Default: 1 ALGO
+    bytec_3 // "current_price"
+    intc_3 // 1000000
     app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:19
+    // smart_contracts/carbon_marketplace/contract.py:30
     // @abimethod(create="require")
     intc_1 // 1
     return
 
 
-// contract.CarbonMarketplace.init_asset[routing]() -> void:
-init_asset:
-    // smart_contracts/carbon_marketplace/contract.py:26
+// contract.CarbonMarketplace.set_price[routing]() -> void:
+set_price:
+    // smart_contracts/carbon_marketplace/contract.py:43
     // @abimethod()
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/carbon_marketplace/contract.py:33
-    // assert Txn.sender == Global.creator_address, "Only creator can init asset"
+    // smart_contracts/carbon_marketplace/contract.py:46
+    // assert Txn.sender == Global.creator_address, "Only creator can set price"
     txn Sender
     global CreatorAddress
     ==
-    assert // Only creator can init asset
-    // smart_contracts/carbon_marketplace/contract.py:34
-    // assert self.cxt_asset_id.value == 0, "Asset already initialized"
-    intc_0 // 0
-    bytec_0 // "cxt_asset_id"
-    app_global_get_ex
-    assert // check self.cxt_asset_id exists
-    !
-    assert // Asset already initialized
-    // smart_contracts/carbon_marketplace/contract.py:36
-    // self.cxt_asset_id.value = asset.id
-    bytec_0 // "cxt_asset_id"
-    dig 1
+    assert // Only creator can set price
+    // smart_contracts/carbon_marketplace/contract.py:47
+    // self.current_price.value = new_price
+    bytec_3 // "current_price"
+    swap
     app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:38-43
-    // # Opt-in to asset via inner transaction
-    // itxn.AssetTransfer(
-    //     xfer_asset=asset,
-    //     asset_receiver=Global.current_application_address,
-    //     asset_amount=0,
-    // ).submit()
-    itxn_begin
-    // smart_contracts/carbon_marketplace/contract.py:41
-    // asset_receiver=Global.current_application_address,
-    global CurrentApplicationAddress
-    // smart_contracts/carbon_marketplace/contract.py:42
-    // asset_amount=0,
+    // smart_contracts/carbon_marketplace/contract.py:43
+    // @abimethod()
+    intc_1 // 1
+    return
+
+
+// contract.CarbonMarketplace.mint_credits[routing]() -> void:
+mint_credits:
+    // smart_contracts/carbon_marketplace/contract.py:49
+    // @abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/carbon_marketplace/contract.py:52
+    // assert Txn.sender == Global.creator_address, "Only creator can mint credits"
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // Only creator can mint credits
+    // smart_contracts/carbon_marketplace/contract.py:53
+    // assert amount > 0, "Amount must be greater than zero"
+    dup
+    assert // Amount must be greater than zero
+    // smart_contracts/carbon_marketplace/contract.py:54
+    // self.total_credits.value += amount
     intc_0 // 0
-    itxn_field AssetAmount
-    itxn_field AssetReceiver
-    itxn_field XferAsset
-    // smart_contracts/carbon_marketplace/contract.py:38-39
-    // # Opt-in to asset via inner transaction
-    // itxn.AssetTransfer(
-    intc_2 // axfer
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/carbon_marketplace/contract.py:38-43
-    // # Opt-in to asset via inner transaction
-    // itxn.AssetTransfer(
-    //     xfer_asset=asset,
-    //     asset_receiver=Global.current_application_address,
-    //     asset_amount=0,
-    // ).submit()
-    itxn_submit
-    // smart_contracts/carbon_marketplace/contract.py:26
+    bytec_0 // "total_credits"
+    app_global_get_ex
+    assert // check self.total_credits exists
+    +
+    bytec_0 // "total_credits"
+    swap
+    app_global_put
+    // smart_contracts/carbon_marketplace/contract.py:49
     // @abimethod()
     intc_1 // 1
     return
@@ -138,7 +164,7 @@ init_asset:
 
 // contract.CarbonMarketplace.buy_credits[routing]() -> void:
 buy_credits:
-    // smart_contracts/carbon_marketplace/contract.py:45
+    // smart_contracts/carbon_marketplace/contract.py:56
     // @abimethod()
     txn GroupIndex
     intc_1 // 1
@@ -151,167 +177,241 @@ buy_credits:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/carbon_marketplace/contract.py:55
+    // smart_contracts/carbon_marketplace/contract.py:63
     // assert buyer_tx.receiver == Global.current_application_address, "Payment must be to contract"
-    swap
+    dig 1
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     assert // Payment must be to contract
-    // smart_contracts/carbon_marketplace/contract.py:56
+    // smart_contracts/carbon_marketplace/contract.py:64
     // assert amount > 0, "Amount must be greater than zero"
     dup
     assert // Amount must be greater than zero
-    // smart_contracts/carbon_marketplace/contract.py:58
-    // asset_id = self.cxt_asset_id.value
+    // smart_contracts/carbon_marketplace/contract.py:65
+    // assert amount <= self.total_credits.value, "Insufficient platform inventory"
     intc_0 // 0
-    bytec_0 // "cxt_asset_id"
-    app_global_get_ex
-    assert // check self.cxt_asset_id exists
-    // smart_contracts/carbon_marketplace/contract.py:59
-    // assert asset_id != 0, "Asset not initialized"
-    dup
-    assert // Asset not initialized
-    // smart_contracts/carbon_marketplace/contract.py:66-71
-    // # Send $CXT to buyer
-    // itxn.AssetTransfer(
-    //     xfer_asset=Asset(asset_id),
-    //     asset_receiver=Txn.sender,
-    //     asset_amount=amount,
-    // ).submit()
-    itxn_begin
-    // smart_contracts/carbon_marketplace/contract.py:69
-    // asset_receiver=Txn.sender,
-    txn Sender
-    dig 2
-    itxn_field AssetAmount
-    itxn_field AssetReceiver
-    itxn_field XferAsset
-    // smart_contracts/carbon_marketplace/contract.py:66-67
-    // # Send $CXT to buyer
-    // itxn.AssetTransfer(
-    intc_2 // axfer
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/carbon_marketplace/contract.py:66-71
-    // # Send $CXT to buyer
-    // itxn.AssetTransfer(
-    //     xfer_asset=Asset(asset_id),
-    //     asset_receiver=Txn.sender,
-    //     asset_amount=amount,
-    // ).submit()
-    itxn_submit
-    // smart_contracts/carbon_marketplace/contract.py:73
-    // self.total_credits.value += amount
-    intc_0 // 0
-    bytec_1 // "total_credits"
+    bytec_0 // "total_credits"
     app_global_get_ex
     assert // check self.total_credits exists
-    +
-    bytec_1 // "total_credits"
+    dup2
+    <=
+    assert // Insufficient platform inventory
+    // smart_contracts/carbon_marketplace/contract.py:67-69
+    // # Enforce price verification (price is in microAlgos per 1 credit)
+    // # Note: 1 credit = 1,000,000 internal units (scaled)
+    // cost = (self.current_price.value * amount) // UInt64(1_000_000)
+    intc_0 // 0
+    bytec_3 // "current_price"
+    app_global_get_ex
+    assert // check self.current_price exists
+    dig 2
+    *
+    intc_3 // 1000000
+    /
+    // smart_contracts/carbon_marketplace/contract.py:70
+    // assert buyer_tx.amount >= cost, "Insufficient payment"
+    uncover 3
+    gtxns Amount
+    <=
+    assert // Insufficient payment
+    // smart_contracts/carbon_marketplace/contract.py:72-73
+    // # Update state: Remove from inventory, Add to user
+    // self.total_credits.value -= amount
+    dig 1
+    -
+    bytec_0 // "total_credits"
     swap
     app_global_put
-    // smart_contracts/carbon_marketplace/contract.py:45
-    // @abimethod()
-    intc_1 // 1
-    return
-
-
-// contract.CarbonMarketplace.mint_credits[routing]() -> void:
-mint_credits:
-    // smart_contracts/carbon_marketplace/contract.py:75
-    // @abimethod()
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_2 // axfer
-    ==
-    assert // transaction type is axfer
-    // smart_contracts/carbon_marketplace/contract.py:82
-    // assert Txn.sender == Global.creator_address, "Only creator can deposit credits"
+    // smart_contracts/carbon_marketplace/contract.py:74
+    // self.user_credits[Txn.sender] += amount
     txn Sender
-    global CreatorAddress
-    ==
-    assert // Only creator can deposit credits
-    // smart_contracts/carbon_marketplace/contract.py:83
-    // assert axfer_tx.asset_receiver == Global.current_application_address, "Transfer must be to contract"
     dup
-    gtxns AssetReceiver
-    global CurrentApplicationAddress
-    ==
-    assert // Transfer must be to contract
-    // smart_contracts/carbon_marketplace/contract.py:84
-    // assert axfer_tx.xfer_asset.id == self.cxt_asset_id.value, "Incorrect asset ID"
-    gtxns XferAsset
     intc_0 // 0
-    bytec_0 // "cxt_asset_id"
-    app_global_get_ex
-    assert // check self.cxt_asset_id exists
-    ==
-    assert // Incorrect asset ID
-    // smart_contracts/carbon_marketplace/contract.py:75
+    bytec_1 // "user_credits"
+    app_local_get_ex
+    assert // check self.user_credits exists for account
+    uncover 2
+    +
+    bytec_1 // "user_credits"
+    swap
+    app_local_put
+    // smart_contracts/carbon_marketplace/contract.py:56
     // @abimethod()
     intc_1 // 1
     return
 
 
-// contract.CarbonMarketplace.get_asset_id[routing]() -> void:
-get_asset_id:
-    // smart_contracts/carbon_marketplace/contract.py:92
-    // return self.cxt_asset_id.value
+// contract.CarbonMarketplace.retire_credits[routing]() -> void:
+retire_credits:
+    // smart_contracts/carbon_marketplace/contract.py:76
+    // @abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/carbon_marketplace/contract.py:83
+    // assert amount > 0, "Amount must be greater than zero"
+    dup
+    assert // Amount must be greater than zero
+    // smart_contracts/carbon_marketplace/contract.py:84
+    // assert self.user_credits[Txn.sender] >= amount, "Insufficient credit balance"
+    txn Sender
     intc_0 // 0
-    bytec_0 // "cxt_asset_id"
-    app_global_get_ex
-    assert // check self.cxt_asset_id exists
-    // smart_contracts/carbon_marketplace/contract.py:89
-    // @abimethod(readonly=True)
-    itob
-    bytec_3 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
-
-
-// contract.CarbonMarketplace.get_total_credits[routing]() -> void:
-get_total_credits:
-    // smart_contracts/carbon_marketplace/contract.py:97
-    // return self.total_credits.value
+    bytec_1 // "user_credits"
+    app_local_get_ex
+    assert // check self.user_credits exists for account
+    dig 1
+    >=
+    assert // Insufficient credit balance
+    // smart_contracts/carbon_marketplace/contract.py:86-87
+    // # Move balance from owned to retired
+    // self.user_credits[Txn.sender] -= amount
+    txn Sender
+    dup
     intc_0 // 0
-    bytec_1 // "total_credits"
-    app_global_get_ex
-    assert // check self.total_credits exists
-    // smart_contracts/carbon_marketplace/contract.py:94
-    // @abimethod(readonly=True)
-    itob
-    bytec_3 // 0x151f7c75
+    bytec_1 // "user_credits"
+    app_local_get_ex
+    assert // check self.user_credits exists for account
+    dig 2
+    -
+    bytec_1 // "user_credits"
     swap
-    concat
-    log
-    intc_1 // 1
-    return
-
-
-// contract.CarbonMarketplace.get_retired_credits[routing]() -> void:
-get_retired_credits:
-    // smart_contracts/carbon_marketplace/contract.py:102
-    // return self.retired_credits.value
+    app_local_put
+    // smart_contracts/carbon_marketplace/contract.py:88
+    // self.user_retired[Txn.sender] += amount
+    txn Sender
+    dup
+    intc_0 // 0
+    bytec 4 // "user_retired"
+    app_local_get_ex
+    assert // check self.user_retired exists for account
+    dig 2
+    +
+    bytec 4 // "user_retired"
+    swap
+    app_local_put
+    // smart_contracts/carbon_marketplace/contract.py:90-91
+    // # Update global impact tally
+    // self.retired_credits.value += amount
     intc_0 // 0
     bytec_2 // "retired_credits"
     app_global_get_ex
     assert // check self.retired_credits exists
-    // smart_contracts/carbon_marketplace/contract.py:99
+    +
+    bytec_2 // "retired_credits"
+    swap
+    app_global_put
+    // smart_contracts/carbon_marketplace/contract.py:76
+    // @abimethod()
+    intc_1 // 1
+    return
+
+
+// contract.CarbonMarketplace.get_user_balance[routing]() -> void:
+get_user_balance:
+    // smart_contracts/carbon_marketplace/contract.py:95
+    // @abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/carbon_marketplace/contract.py:98
+    // return self.user_credits.get(account, default=UInt64(0))
+    intc_0 // 0
+    bytec_1 // "user_credits"
+    app_local_get_ex
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/carbon_marketplace/contract.py:95
     // @abimethod(readonly=True)
     itob
-    bytec_3 // 0x151f7c75
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.CarbonMarketplace.get_user_retired[routing]() -> void:
+get_user_retired:
+    // smart_contracts/carbon_marketplace/contract.py:100
+    // @abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/carbon_marketplace/contract.py:103
+    // return self.user_retired.get(account, default=UInt64(0))
+    intc_0 // 0
+    bytec 4 // "user_retired"
+    app_local_get_ex
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/carbon_marketplace/contract.py:100
+    // @abimethod(readonly=True)
+    itob
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.CarbonMarketplace.get_current_price[routing]() -> void:
+get_current_price:
+    // smart_contracts/carbon_marketplace/contract.py:107
+    // return self.current_price.value
+    intc_0 // 0
+    bytec_3 // "current_price"
+    app_global_get_ex
+    assert // check self.current_price exists
+    // smart_contracts/carbon_marketplace/contract.py:105
+    // @abimethod(readonly=True)
+    itob
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.CarbonMarketplace.get_market_stats[routing]() -> void:
+get_market_stats:
+    // smart_contracts/carbon_marketplace/contract.py:112
+    // return (self.total_credits.value, self.retired_credits.value)
+    intc_0 // 0
+    bytec_0 // "total_credits"
+    app_global_get_ex
+    assert // check self.total_credits exists
+    intc_0 // 0
+    bytec_2 // "retired_credits"
+    app_global_get_ex
+    assert // check self.retired_credits exists
+    // smart_contracts/carbon_marketplace/contract.py:109
+    // @abimethod(readonly=True)
+    swap
+    itob
+    swap
+    itob
+    concat
+    bytec 5 // 0x151f7c75
     swap
     concat
     log

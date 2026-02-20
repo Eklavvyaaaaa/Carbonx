@@ -17,14 +17,14 @@ import './Pages.css';
 import './DashboardMarketplace.css';
 
 const MARKET_LISTINGS = [
-    { 
-        id: 101, 
-        project: "Amazon Reforestation", 
-        type: "Nature-Based", 
-        location: "Brazil", 
-        price: 12.50, 
-        available: 5000, 
-        seller: "GreenCorps", 
+    {
+        id: 101,
+        project: "Amazon Reforestation",
+        type: "Nature-Based",
+        location: "Brazil",
+        price: 12.50,
+        available: 5000,
+        seller: "GreenCorps",
         vintage: "2025",
         description: "Large-scale reforestation project in the Amazon rainforest, restoring native tree species and protecting biodiversity.",
         certification: "VCS Verified",
@@ -32,14 +32,14 @@ const MARKET_LISTINGS = [
         startDate: "2023",
         endDate: "2030"
     },
-    { 
-        id: 102, 
-        project: "Gujarat Solar Park", 
-        type: "Renewable", 
-        location: "India", 
-        price: 8.00, 
-        available: 12000, 
-        seller: "EcoEnergy", 
+    {
+        id: 102,
+        project: "Gujarat Solar Park",
+        type: "Renewable",
+        location: "India",
+        price: 8.00,
+        available: 12000,
+        seller: "EcoEnergy",
         vintage: "2026",
         description: "Massive solar energy installation providing clean electricity to thousands of homes and businesses.",
         certification: "Gold Standard",
@@ -47,14 +47,14 @@ const MARKET_LISTINGS = [
         startDate: "2024",
         endDate: "2026"
     },
-    { 
-        id: 103, 
-        project: "Methane Capture Delhi", 
-        type: "Methane", 
-        location: "India", 
-        price: 11.00, 
-        available: 3500, 
-        seller: "CleanCity", 
+    {
+        id: 103,
+        project: "Methane Capture Delhi",
+        type: "Methane",
+        location: "India",
+        price: 11.00,
+        available: 3500,
+        seller: "CleanCity",
         vintage: "2025",
         description: "Advanced methane capture system at landfill sites, converting waste gas into clean energy.",
         certification: "CDM Verified",
@@ -62,14 +62,14 @@ const MARKET_LISTINGS = [
         startDate: "2023",
         endDate: "2025"
     },
-    { 
-        id: 104, 
-        project: "Rooftop Solar Initiative", 
-        type: "Renewable", 
-        location: "Germany", 
-        price: 14.50, 
-        available: 800, 
-        seller: "UrbanSolar", 
+    {
+        id: 104,
+        project: "Rooftop Solar Initiative",
+        type: "Renewable",
+        location: "Germany",
+        price: 14.50,
+        available: 800,
+        seller: "UrbanSolar",
         vintage: "2024",
         description: "Distributed solar panels on residential and commercial rooftops across urban areas.",
         certification: "TÜV Certified",
@@ -77,14 +77,14 @@ const MARKET_LISTINGS = [
         startDate: "2022",
         endDate: "2024"
     },
-    { 
-        id: 105, 
-        project: "Blue Carbon Mangroves", 
-        type: "Nature-Based", 
-        location: "Indonesia", 
-        price: 22.00, 
-        available: 1500, 
-        seller: "OceanSave", 
+    {
+        id: 105,
+        project: "Blue Carbon Mangroves",
+        type: "Nature-Based",
+        location: "Indonesia",
+        price: 22.00,
+        available: 1500,
+        seller: "OceanSave",
         vintage: "2025",
         description: "Mangrove restoration project protecting coastlines and sequestering carbon in marine ecosystems.",
         certification: "VCS + CCB",
@@ -92,14 +92,14 @@ const MARKET_LISTINGS = [
         startDate: "2023",
         endDate: "2028"
     },
-    { 
-        id: 106, 
-        project: "Biogas Plants India", 
-        type: "Methane", 
-        location: "India", 
-        price: 9.50, 
-        available: 2800, 
-        seller: "BioGreen", 
+    {
+        id: 106,
+        project: "Biogas Plants India",
+        type: "Methane",
+        location: "India",
+        price: 9.50,
+        available: 2800,
+        seller: "BioGreen",
         vintage: "2026",
         description: "Biogas facilities converting agricultural waste into clean cooking fuel for rural communities.",
         certification: "Gold Standard",
@@ -107,14 +107,14 @@ const MARKET_LISTINGS = [
         startDate: "2024",
         endDate: "2026"
     },
-    { 
-        id: 107, 
-        project: "Wind Farm Expansion", 
-        type: "Renewable", 
-        location: "Germany", 
-        price: 9.50, 
-        available: 6500, 
-        seller: "WindFlow", 
+    {
+        id: 107,
+        project: "Wind Farm Expansion",
+        type: "Renewable",
+        location: "Germany",
+        price: 9.50,
+        available: 6500,
+        seller: "WindFlow",
         vintage: "2025",
         description: "Expansion of existing wind energy infrastructure with new high-efficiency turbines.",
         certification: "I-REC Standard",
@@ -122,14 +122,14 @@ const MARKET_LISTINGS = [
         startDate: "2023",
         endDate: "2025"
     },
-    { 
-        id: 108, 
-        project: "Clean Cookstoves Kenya", 
-        type: "Community", 
-        location: "Kenya", 
-        price: 15.00, 
-        available: 4200, 
-        seller: "EcoCook", 
+    {
+        id: 108,
+        project: "Clean Cookstoves Kenya",
+        type: "Community",
+        location: "Kenya",
+        price: 15.00,
+        available: 4200,
+        seller: "EcoCook",
         vintage: "2025",
         description: "Distribution of efficient cookstoves reducing wood consumption and indoor air pollution.",
         certification: "Gold Standard",
@@ -193,10 +193,10 @@ export default function Marketplace() {
             toast.warning("Connect wallet to trade");
             return;
         }
-        
+
         // Set the project being bought
         setBuyingProject(item);
-        
+
         // Auto opt-in if needed
         const optedIn = await ensureOptedIn(account, toast);
         if (!optedIn) {
@@ -209,7 +209,7 @@ export default function Marketplace() {
             const algoBal = await getAlgoBalance(account);
             const pricePerCredit = currentPrice / 1_000_000; // Convert to ALGO
             const minRequired = pricePerCredit * 1; // At least 1 credit
-            
+
             if (algoBal < minRequired * 1_000_000) {
                 toast.error(`Insufficient ALGO balance. You need at least ${minRequired.toFixed(4)} ALGO to buy 1 credit.`);
                 setBuyingProject(null);
@@ -494,16 +494,16 @@ export default function Marketplace() {
                                                         <td>{item.available.toLocaleString()}</td>
                                                         <td>
                                                             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                                                <button 
-                                                                    className="btn btn-outline btn-sm" 
+                                                                <button
+                                                                    className="btn btn-outline btn-sm"
                                                                     onClick={() => setSelectedProject(item)}
                                                                     disabled={loading}
                                                                 >
                                                                     View Details
                                                                 </button>
-                                                                <button 
-                                                                    className="btn btn-primary btn-sm" 
-                                                                    onClick={() => handleBuyFromTable(item)} 
+                                                                <button
+                                                                    className="btn btn-primary btn-sm"
+                                                                    onClick={() => handleBuyFromTable(item)}
                                                                     disabled={loading || buyingProject?.id === item.id}
                                                                 >
                                                                     {buyingProject?.id === item.id ? 'Buying...' : 'Buy'}
@@ -569,8 +569,8 @@ export default function Marketplace() {
 
             {/* Project Details Modal */}
             {selectedProject && (
-                <div 
-                    className="modal-overlay" 
+                <div
+                    className="modal-overlay"
                     onClick={() => setSelectedProject(null)}
                     style={{
                         position: 'fixed',
@@ -586,8 +586,8 @@ export default function Marketplace() {
                         padding: '1rem'
                     }}
                 >
-                    <div 
-                        className="card" 
+                    <div
+                        className="card"
                         onClick={(e) => e.stopPropagation()}
                         style={{
                             maxWidth: '600px',
@@ -601,7 +601,7 @@ export default function Marketplace() {
                                 <h2 style={{ marginBottom: '0.5rem' }}>{selectedProject.project}</h2>
                                 <p className="text-muted">{selectedProject.seller}</p>
                             </div>
-                            <button 
+                            <button
                                 className="btn btn-outline btn-sm"
                                 onClick={() => setSelectedProject(null)}
                                 style={{ minWidth: 'auto', padding: '0.5rem' }}
@@ -653,7 +653,7 @@ export default function Marketplace() {
                         </div>
 
                         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-                            <button 
+                            <button
                                 className="btn btn-primary"
                                 onClick={() => {
                                     setSelectedProject(null);
@@ -663,7 +663,7 @@ export default function Marketplace() {
                             >
                                 Buy Credits
                             </button>
-                            <button 
+                            <button
                                 className="btn btn-outline"
                                 onClick={() => setSelectedProject(null)}
                             >

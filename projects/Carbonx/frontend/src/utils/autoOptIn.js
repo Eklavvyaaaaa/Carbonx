@@ -36,10 +36,10 @@ export async function ensureOptedIn(account, toast) {
         // Auto opt-in
         toast?.info('Opting in to $CXT token...');
         await optInToCXT(account);
-        
+
         // Wait a moment for indexer to catch up
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Verify opt-in succeeded
         const verified = await checkCXTOptIn(account);
         if (verified) {
@@ -59,7 +59,7 @@ export async function ensureOptedIn(account, toast) {
     } catch (error) {
         console.error('[AutoOptIn] Error:', error);
         const errorMsg = error.message || 'Unknown error';
-        
+
         if (errorMsg.includes('cancel') || errorMsg.includes('rejected') || errorMsg.includes('cancelled')) {
             toast?.warning('Opt-in was cancelled. Please try again.');
         } else if (errorMsg.includes('Insufficient ALGO') || errorMsg.includes('balance')) {
