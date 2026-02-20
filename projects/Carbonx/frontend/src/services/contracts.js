@@ -124,6 +124,22 @@ export async function checkCXTOptIn(address) {
 
 // ─── CarbonMarketplace ──────────────────────────────────────────────
 
+/**
+ * Create a TransactionWithSigner for use with AtomicTransactionComposer.
+ * Signs the full group once so Pera gets both txns in one approval.
+ */
+function makeWalletTransactionWithSigner(sender) {
+    return {
+        signer: async (txnGroup, indexesToSign) => {
+            // Sign the full group so the wallet sees both txns in one approval
+            const fullGroup = txnGroup.map(t => ({ txn: t, signers: [sender] }));
+            const signedAll = await signTransactions(fullGroup);
+            // Return only the txns we were asked to sign, in indexesToSign order
+            return indexesToSign.map(i => signedAll[i]);
+        }
+    };
+}
+
 export async function mintCredits(sender, amount) {
     const params = await algodClient.getTransactionParams().do();
     params.genesisHash = params.genesisHash || 'SGO1GKSzyE7IEPItTxCBywTZ644S4o/W88un3Ry7jd0=';
@@ -137,11 +153,17 @@ export async function mintCredits(sender, amount) {
         suggestedParams: params,
     });
 
+    const axferWithSigner = {
+        txn: axferTxn,
+        ...makeWalletTransactionWithSigner(sender)
+    };
+
     return callMethod(
         APP_IDS.CARBON_MARKETPLACE,
         sender,
         ABI_METHODS.MARKETPLACE.mint_credits,
-        [{ txn: axferTxn, sign: true }]
+        [axferWithSigner],
+        { assets: [Number(APP_IDS.CXT_ASSET_ID)] }
     );
 }
 
@@ -150,19 +172,29 @@ export async function buyCreditsWithCost(sender, creditAmount, totalCostMicroAlg
     params.genesisHash = params.genesisHash || 'SGO1GKSzyE7IEPItTxCBywTZ644S4o/W88un3Ry7jd0=';
     params.genesisID = params.genesisID || 'testnet-v1.0';
 
+    // Contract expects payment >= 0; use at least 0.1 ALGO (100_000 microAlgos) if computed cost is 0
+    const paymentAmount = BigInt(totalCostMicroAlgos) > 0n
+        ? BigInt(totalCostMicroAlgos)
+        : 100_000n;
+
     const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: sender,
         to: algosdk.getApplicationAddress(APP_IDS.CARBON_MARKETPLACE),
-        amount: BigInt(totalCostMicroAlgos),
+        amount: paymentAmount,
         suggestedParams: params,
     });
+
+    const payWithSigner = {
+        txn: payTxn,
+        ...makeWalletTransactionWithSigner(sender)
+    };
 
     return callMethod(
         APP_IDS.CARBON_MARKETPLACE,
         sender,
         ABI_METHODS.MARKETPLACE.buy_credits,
         [
-            { txn: payTxn, sign: true },
+            payWithSigner,
             BigInt(creditAmount)
         ],
         { assets: [Number(APP_IDS.CXT_ASSET_ID)] }
@@ -170,11 +202,17 @@ export async function buyCreditsWithCost(sender, creditAmount, totalCostMicroAlg
 }
 
 export async function getCurrentPrice() {
-    return simulateReadonly(
-        APP_IDS.CARBON_MARKETPLACE,
-        null,
-        ABI_METHODS.MARKETPLACE.get_current_price
-    );
+    try {
+        const price = await simulateReadonly(
+            APP_IDS.CARBON_MARKETPLACE,
+            null,
+            ABI_METHODS.MARKETPLACE.get_current_price
+        );
+        return price != null ? price : 1_000_000;
+    } catch (e) {
+        // Contract may not have get_current_price; use 1 ALGO per credit as fallback
+        return 1_000_000;
+    }
 }
 
 export async function getMarketplaceState() {
