@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '../context/WalletContext';
-import { getMarketplaceState } from '../services/contracts';
+import { getMarketplaceState, checkCXTOptIn } from '../services/contracts';
+import { getAssetBalance } from '../services/algorand';
+import { APP_IDS } from '../config';
+import { useToast } from '../context/ToastContext';
 import './DashboardMarketplace.css';
 
 // SVG Icon components
@@ -51,25 +54,61 @@ const MONTHLY_DATA = [
 
 export default function Dashboard() {
     const { account } = useWallet();
+    const toast = useToast();
+    const [isOptedIn, setIsOptedIn] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({
         totalCredits: 0,
         retiredCredits: 0,
+        userCredits: 0,
         portfolioValue: 0
     });
 
+    // Fetch stats and opt-in status
+    const fetchStats = useCallback(async () => {
+        if (!account) {
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            console.log('[Dashboard] Fetching stats for account:', account);
+
+            // Fetch marketplace state and opt-in status in parallel
+            const [mp, opted] = await Promise.all([
+                getMarketplaceState(),
+                checkCXTOptIn(account)
+            ]);
+
+            setIsOptedIn(opted);
+            console.log('[Dashboard] Opt-in status:', opted);
+
+            let userBal = 0;
+            if (opted) {
+                const balRaw = await getAssetBalance(account, APP_IDS.CXT_ASSET_ID);
+                userBal = Number(balRaw) / 1_000_000; // Assuming 6 decimals
+                console.log('[Dashboard] User balance:', userBal);
+            }
+
+            setStats({
+                totalCredits: Number(mp.total_credits || 0) / 1_000_000,
+                retiredCredits: Number(mp.retired_credits || 0) / 1_000_000,
+                userCredits: userBal,
+                portfolioValue: userBal * 12.50 // Adjusted for realistic ALGO price in INR
+            });
+        } catch (e) {
+            console.error('[Dashboard] Error fetching stats:', e);
+            toast.error('Failed to load dashboard data');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [account, toast]);
+
+    // Fetch stats when account changes
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const mp = await getMarketplaceState();
-                setStats({
-                    totalCredits: mp.total_credits || 0,
-                    retiredCredits: mp.retired_credits || 0,
-                    portfolioValue: (mp.total_credits || 0) * 830
-                });
-            } catch (e) { }
-        };
         fetchStats();
-    }, []);
+    }, [fetchStats]);
 
     const maxBar = Math.max(...MONTHLY_DATA.map(d => d.value));
 
@@ -103,32 +142,38 @@ export default function Dashboard() {
             <div className="section" style={{ paddingTop: '2rem' }}>
                 <div className="container">
                     {/* Stats Grid */}
-                    <div className="stats-grid mb-12">
-                        <div className="stat-card">
-                            <div className="stat-icon"><IconBriefcase /></div>
-                            <div className="stat-label">Portfolio Value</div>
-                            <div className="stat-value">₹{stats.portfolioValue.toLocaleString('en-IN')}</div>
-                            <div className="stat-sub">Est. Market Value</div>
+                    {isLoading && account ? (
+                        <div className="card mb-12" style={{ textAlign: 'center', padding: '3rem' }}>
+                            <p>Loading dashboard data...</p>
                         </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><IconLeaf /></div>
-                            <div className="stat-label">Total Credits</div>
-                            <div className="stat-value">{(stats.totalCredits).toLocaleString()}</div>
-                            <div className="stat-sub">Across All Projects</div>
+                    ) : (
+                        <div className="stats-grid mb-12">
+                            <div className="stat-card">
+                                <div className="stat-icon"><IconBriefcase /></div>
+                                <div className="stat-label">Portfolio Value</div>
+                                <div className="stat-value">₹{stats.portfolioValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                                <div className="stat-sub">Est. Market Value</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon"><IconLeaf /></div>
+                                <div className="stat-label">Your Credits</div>
+                                <div className="stat-value">{stats.userCredits.toLocaleString()}</div>
+                                <div className="stat-sub">$CXT Balance</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon"><IconRecycle /></div>
+                                <div className="stat-label">Retired Credits</div>
+                                <div className="stat-value">{stats.retiredCredits.toLocaleString()}</div>
+                                <div className="stat-sub">Permanently Offset</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon"><IconTrendDown /></div>
+                                <div className="stat-label">Emissions Reduced</div>
+                                <div className="stat-value">{stats.retiredCredits.toLocaleString()}t</div>
+                                <div className="stat-sub">CO₂ Equivalent</div>
+                            </div>
                         </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><IconRecycle /></div>
-                            <div className="stat-label">Retired Credits</div>
-                            <div className="stat-value">{(stats.retiredCredits).toLocaleString()}</div>
-                            <div className="stat-sub">Permanently Offset</div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><IconTrendDown /></div>
-                            <div className="stat-label">Emissions Reduced</div>
-                            <div className="stat-value">{(stats.retiredCredits).toLocaleString()}t</div>
-                            <div className="stat-sub">CO₂ Equivalent</div>
-                        </div>
-                    </div>
+                    )}
 
                     {/* Charts & Activity */}
                     <div className="dashboard-grid">

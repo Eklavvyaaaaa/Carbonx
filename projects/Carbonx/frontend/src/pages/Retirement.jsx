@@ -6,7 +6,9 @@ import {
     addSupply,
     retireCreditsRM,
     getRetirementManagerState,
+    checkCXTOptIn,
 } from '../services/contracts';
+import { ensureOptedIn } from '../utils/autoOptIn';
 import './Pages.css';
 
 export default function Retirement() {
@@ -17,16 +19,25 @@ export default function Retirement() {
     const [supplyAmount, setSupplyAmount] = useState('');
     const [retireAmount, setRetireAmount] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isOptedIn, setIsOptedIn] = useState(false);
 
     const refresh = useCallback(async () => {
         if (!APP_IDS.RETIREMENT_MANAGER) return;
         try {
             const state = await getRetirementManagerState();
-            setStats(state);
+            setStats({
+                total_supply: Number(state.total_supply || 0) / 1_000_000,
+                retired_credits: Number(state.retired_credits || 0) / 1_000_000
+            });
+
+            if (account) {
+                const opted = await checkCXTOptIn(account);
+                setIsOptedIn(opted);
+            }
         } catch (e) {
             console.error(e);
         }
-    }, []);
+    }, [account]);
 
     useEffect(() => {
         refresh();
@@ -43,7 +54,9 @@ export default function Retirement() {
         if (!supplyAmount || Number(supplyAmount) <= 0) return toast.warning('Enter a valid amount');
         setLoading(true);
         try {
-            await addSupply(account, Number(supplyAmount));
+            const amountDecimal = Number(supplyAmount);
+            const amountBase = Math.floor(amountDecimal * 1_000_000);
+            await addSupply(account, amountBase);
             toast.success(`Added ${supplyAmount} to supply!`);
             setSupplyAmount('');
             await refresh();
@@ -57,9 +70,18 @@ export default function Retirement() {
         e.preventDefault();
         if (!account) return toast.warning('Connect your wallet first');
         if (!retireAmount || Number(retireAmount) <= 0) return toast.warning('Enter a valid amount');
+
+        // Auto opt-in if needed
+        const optedIn = await ensureOptedIn(account, toast);
+        if (!optedIn) {
+            return; // Error already shown by ensureOptedIn
+        }
+
         setLoading(true);
         try {
-            await retireCreditsRM(account, Number(retireAmount));
+            const amountDecimal = Number(retireAmount);
+            const amountBase = Math.floor(amountDecimal * 1_000_000);
+            await retireCreditsRM(account, amountBase);
             toast.success(`Retired ${retireAmount} credits!`);
             setRetireAmount('');
             await refresh();

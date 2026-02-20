@@ -1,10 +1,16 @@
 import './ProjectCard.css';
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, onViewDetails }) {
     const { title, category, location, credits, risk, price, image, description, revenue } = project;
 
     const riskColor = risk === 'Low' ? 'var(--c-success)' : risk === 'Medium' ? 'var(--c-warning)' : 'var(--c-error)';
     const riskBg = risk === 'Low' ? '#dcfce7' : risk === 'Medium' ? '#fef3c7' : '#fee2e2';
+
+    const handleClick = () => {
+        if (onViewDetails) {
+            onViewDetails(project);
+        }
+    };
 
     return (
         <div className="card project-card">
@@ -46,7 +52,9 @@ export default function ProjectCard({ project }) {
                     </div>
                 )}
 
-                <button className="btn btn-outline w-full">View Details</button>
+                <button type="button" className="btn btn-outline w-full" onClick={handleClick}>
+                    View Details
+                </button>
             </div>
         </div>
     );

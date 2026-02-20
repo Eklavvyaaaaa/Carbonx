@@ -11,6 +11,11 @@ export function WalletProvider({ children }) {
         setAccountChangeCallback((addr) => {
             setAccount(addr);
         });
+
+        // Auto-reconnect on mount
+        import('../services/wallet').then(({ reconnectSession }) => {
+            reconnectSession();
+        });
     }, []);
 
     const connect = useCallback(async () => {

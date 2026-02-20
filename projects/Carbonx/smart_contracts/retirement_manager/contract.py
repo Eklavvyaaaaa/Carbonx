@@ -1,61 +1,65 @@
-from algopy import ARC4Contract, GlobalState, Txn, Global, UInt64
+from algopy import ARC4Contract, GlobalState, Txn, Global, UInt64, gtxn, Asset
 from algopy.arc4 import abimethod
 
 
 class RetirementManager(ARC4Contract):
-    """Manages carbon credit retirements with admin access control.
+    """Manages carbon credit retirements by verifying $CXT ASA transfers.
 
     Global state:
-        total_supply     – total credits registered in this manager
         retired_credits  – credits permanently retired
+        cxt_asset_id    – the Asset ID of the $CXT token
     """
 
     def __init__(self) -> None:
-        self.total_supply = GlobalState(UInt64(0), key="total_supply")
         self.retired_credits = GlobalState(UInt64(0), key="retired_credits")
+        self.cxt_asset_id = GlobalState(UInt64(0), key="cxt_asset_id")
 
     @abimethod(create="require")
     def create(self) -> None:
         """Initialise retirement tracking."""
-        self.total_supply.value = UInt64(0)
         self.retired_credits.value = UInt64(0)
+        self.cxt_asset_id.value = UInt64(0)
 
     @abimethod()
-    def add_supply(self, amount: UInt64) -> None:
-        """Register additional credit supply. Creator only.
-
-        This should be called when credits are minted in the marketplace
-        so this manager knows the total supply available for retirement.
-
+    def init_asset(self, asset: Asset) -> None:
+        """Set the $CXT Asset ID. Creator only.
+        
         Args:
-            amount: number of credits to add (must be > 0)
+            asset: The $CXT asset to track.
         """
-        assert Txn.sender == Global.creator_address, "Only creator can add supply"
-        assert amount > 0, "Amount must be greater than zero"
-        self.total_supply.value += amount
+        assert Txn.sender == Global.creator_address, "Only creator can init asset"
+        assert self.cxt_asset_id.value == 0, "Asset already initialized"
+        self.cxt_asset_id.value = asset.id
+        
+        # Note: RetirementManager doesn't necessarily need to opt-in 
+        # unless it wants to hold tokens instead of just receiving them.
+        # But if we want to "collect" them, it MUST opt-in.
+        from algopy import itxn
+        itxn.AssetTransfer(
+            xfer_asset=asset,
+            asset_receiver=Global.current_application_address,
+            asset_amount=0,
+        ).submit()
 
     @abimethod()
-    def retire_credits(self, amount: UInt64) -> None:
-        """Retire carbon credits permanently. Creator only.
-
-        Credits are removed from the available supply and added to
-        the retirement tally.
-
+    def retire_credits(self, axfer_tx: gtxn.AssetTransferTransaction) -> None:
+        """Retire carbon credits permanently.
+        
+        Requires an atomic group:
+        1. Asset Transfer ($CXT) from User to RetirementManager
+        2. App Call to this method
+        
         Args:
-            amount: number of credits to retire (must be > 0)
+            axfer_tx: The asset transfer from the user to the contract.
         """
-        assert Txn.sender == Global.creator_address, "Only creator can retire credits"
-        assert amount > 0, "Amount must be greater than zero"
-        available = self.total_supply.value - self.retired_credits.value
-        assert available >= amount, "Insufficient supply to retire"
-        self.retired_credits.value += amount
+        assert axfer_tx.asset_receiver == Global.current_application_address, "Transfer must be to contract"
+        assert axfer_tx.xfer_asset.id == self.cxt_asset_id.value, "Incorrect asset ID"
+        assert axfer_tx.asset_amount > 0, "Amount must be greater than zero"
+        
+        # Update global tally
+        self.retired_credits.value += axfer_tx.asset_amount
 
     @abimethod(readonly=True)
     def get_retirement_stats(self) -> UInt64:
         """Return the total retired credits."""
         return self.retired_credits.value
-
-    @abimethod(readonly=True)
-    def get_available_supply(self) -> UInt64:
-        """Return credits available for retirement (total_supply - retired)."""
-        return self.total_supply.value - self.retired_credits.value

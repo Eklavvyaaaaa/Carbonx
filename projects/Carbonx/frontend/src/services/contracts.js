@@ -1,39 +1,155 @@
 // Contract-specific helpers for the three CarbonX smart contracts
 import { APP_IDS, ABI_METHODS } from '../config';
-import { callMethod, simulateReadonly, readGlobalState, readLocalState, algodClient, getIndexerClient } from './algorand';
+import { callMethod, simulateReadonly, readGlobalState, algodClient, getIndexerClient } from './algorand';
+import { signTransactions } from './wallet';
 
 import algosdk from 'algosdk';
+
+// ─── Utility: ASA Opt-in ───────────────────────────────────────────
+
+/**
+ * Opt-in to the CXT asset
+ * @param {string} sender - Account address to opt-in
+ * @returns {Promise<Object>} - Transaction confirmation
+ */
+export async function optInToCXT(sender) {
+    console.log('[DEBUG] optInToCXT called for:', sender);
+
+    if (!sender) {
+        throw new Error("Sender address is required");
+    }
+
+    try {
+        // Get transaction parameters
+        const params = await algodClient.getTransactionParams().do();
+        
+        // Ensure Testnet parameters are set
+        if (!params.genesisHash) {
+            params.genesisHash = 'SGO1GKSzyE7IEPItTxCBywTZ644S4o/W88un3Ry7jd0=';
+        }
+        if (!params.genesisID) {
+            params.genesisID = 'testnet-v1.0';
+        }
+
+        const assetIndex = Number(APP_IDS.CXT_ASSET_ID);
+        if (!assetIndex || assetIndex === 0) {
+            throw new Error("CXT_ASSET_ID is not configured properly");
+        }
+
+        console.log(`[DEBUG] Creating opt-in transaction for asset ${assetIndex}`);
+
+        // Create the opt-in transaction (asset transfer to self with amount 0)
+        const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+            from: sender,
+            to: sender,
+            assetIndex: assetIndex,
+            amount: 0,
+            suggestedParams: params,
+        });
+
+        console.log('[DEBUG] Opt-in transaction created successfully');
+
+        // Prepare transaction for signing
+        // signTransactions expects array of { txn, signers? }
+        const txnsToSign = [{
+            txn: optInTxn,
+            signers: [sender]
+        }];
+
+        console.log('[DEBUG] Requesting signature from wallet...');
+        const signedTxns = await signTransactions(txnsToSign);
+
+        if (!signedTxns || signedTxns.length === 0) {
+            throw new Error("No signed transactions returned. Transaction may have been cancelled.");
+        }
+
+        console.log('[DEBUG] Transaction signed. Broadcasting to network...');
+        
+        // Send the signed transaction(s) to the network
+        // sendRawTransaction accepts Uint8Array[] directly
+        const { txId } = await algodClient.sendRawTransaction(signedTxns).do();
+
+        console.log('[DEBUG] Transaction broadcasted. Transaction ID:', txId);
+        console.log('[DEBUG] Waiting for confirmation...');
+
+        // Wait for confirmation (4 rounds)
+        const confirmation = await algosdk.waitForConfirmation(algodClient, txId, 4);
+
+        console.log('[DEBUG] Transaction confirmed in round:', confirmation['confirmed-round']);
+        return confirmation;
+    } catch (err) {
+        console.error('[DEBUG] Error during opt-in:', err);
+        
+        // Re-throw with more context if needed
+        if (err.message) {
+            throw err;
+        }
+        throw new Error(`Opt-in failed: ${err.toString()}`);
+    }
+}
+
+/**
+ * Check if an address has opted into the CXT asset
+ * @param {string} address - Account address to check
+ * @returns {Promise<boolean>} - True if opted in, false otherwise
+ */
+export async function checkCXTOptIn(address) {
+    if (!address) {
+        return false;
+    }
+
+    try {
+        const indexer = getIndexerClient();
+        const accountInfo = await indexer.lookupAccountByID(address).do();
+        const assets = accountInfo.account?.assets || [];
+        
+        const assetId = Number(APP_IDS.CXT_ASSET_ID);
+        const isOptedIn = assets.some(a => Number(a['asset-id']) === assetId);
+        
+        console.log(`[DEBUG] checkCXTOptIn for ${address}:`, isOptedIn);
+        return isOptedIn;
+    } catch (e) {
+        console.warn('[DEBUG] Indexer check failed, trying algod:', e.message);
+        try {
+            const accountInfo = await algodClient.accountInformation(address).do();
+            const assets = accountInfo.assets || [];
+            const assetId = Number(APP_IDS.CXT_ASSET_ID);
+            return assets.some(a => Number(a['asset-id']) === assetId);
+        } catch (e2) {
+            console.error('[DEBUG] Both indexer and algod checks failed:', e2.message);
+            return false;
+        }
+    }
+}
 
 // ─── CarbonMarketplace ──────────────────────────────────────────────
 
 export async function mintCredits(sender, amount) {
+    const params = await algodClient.getTransactionParams().do();
+    params.genesisHash = params.genesisHash || 'SGO1GKSzyE7IEPItTxCBywTZ644S4o/W88un3Ry7jd0=';
+    params.genesisID = params.genesisID || 'testnet-v1.0';
+
+    const axferTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: sender,
+        to: algosdk.getApplicationAddress(APP_IDS.CARBON_MARKETPLACE),
+        assetIndex: Number(APP_IDS.CXT_ASSET_ID),
+        amount: BigInt(amount),
+        suggestedParams: params,
+    });
+
     return callMethod(
         APP_IDS.CARBON_MARKETPLACE,
         sender,
         ABI_METHODS.MARKETPLACE.mint_credits,
-        [amount]
+        [{ txn: axferTxn, sign: true }]
     );
-}
-
-export async function retireCredits(sender, amount) {
-    return callMethod(
-        APP_IDS.CARBON_MARKETPLACE,
-        sender,
-        ABI_METHODS.MARKETPLACE.retire_credits,
-        [amount]
-    );
-}
-
-export async function buyCredits(sender, amount, pricePerUnit) {
-    // This is a placeholder or simplified wrapper. 
-    // Use buyCreditsWithCost for actual implementation.
-    console.warn("Use buyCreditsWithCost instead");
 }
 
 export async function buyCreditsWithCost(sender, creditAmount, totalCostMicroAlgos) {
     const params = await algodClient.getTransactionParams().do();
+    params.genesisHash = params.genesisHash || 'SGO1GKSzyE7IEPItTxCBywTZ644S4o/W88un3Ry7jd0=';
+    params.genesisID = params.genesisID || 'testnet-v1.0';
 
-    // Payment Transaction to Contract (ensure amount is BigInt for precision)
     const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: sender,
         to: algosdk.getApplicationAddress(APP_IDS.CARBON_MARKETPLACE),
@@ -47,8 +163,9 @@ export async function buyCreditsWithCost(sender, creditAmount, totalCostMicroAlg
         ABI_METHODS.MARKETPLACE.buy_credits,
         [
             { txn: payTxn, sign: true },
-            creditAmount
-        ]
+            BigInt(creditAmount)
+        ],
+        { assets: [Number(APP_IDS.CXT_ASSET_ID)] }
     );
 }
 
@@ -60,6 +177,10 @@ export async function getCurrentPrice() {
     );
 }
 
+export async function getMarketplaceState() {
+    return readGlobalState(APP_IDS.CARBON_MARKETPLACE);
+}
+
 export async function getCredits(account) {
     return simulateReadonly(
         APP_IDS.CARBON_MARKETPLACE,
@@ -67,26 +188,6 @@ export async function getCredits(account) {
         ABI_METHODS.MARKETPLACE.get_credits,
         [account]
     );
-}
-
-export async function getTotalCredits() {
-    return simulateReadonly(
-        APP_IDS.CARBON_MARKETPLACE,
-        null,
-        ABI_METHODS.MARKETPLACE.get_total_credits
-    );
-}
-
-export async function getRetiredCredits() {
-    return simulateReadonly(
-        APP_IDS.CARBON_MARKETPLACE,
-        null,
-        ABI_METHODS.MARKETPLACE.get_retired_credits
-    );
-}
-
-export async function getMarketplaceState() {
-    return readGlobalState(APP_IDS.CARBON_MARKETPLACE);
 }
 
 // ─── IssuerRegistry ─────────────────────────────────────────────────
@@ -135,14 +236,6 @@ export async function getIssuerStatus(account) {
     );
 }
 
-export async function getApprovedCount() {
-    return simulateReadonly(
-        APP_IDS.ISSUER_REGISTRY,
-        null,
-        ABI_METHODS.ISSUER_REGISTRY.get_approved_count
-    );
-}
-
 export async function getIssuerRegistryState() {
     return readGlobalState(APP_IDS.ISSUER_REGISTRY);
 }
@@ -156,7 +249,6 @@ export async function getPendingIssuers() {
 
         const pending = [];
         for (const account of response.accounts) {
-            // Check local state for 'is_registered' and 'is_approved'
             const localState = account['apps-local-state']?.find(a => a.id === APP_IDS.ISSUER_REGISTRY);
             if (!localState) continue;
 
@@ -195,13 +287,29 @@ export async function addSupply(sender, amount) {
 }
 
 export async function retireCreditsRM(sender, amount) {
+    const params = await algodClient.getTransactionParams().do();
+    params.genesisHash = params.genesisHash || 'SGO1GKSzyE7IEPItTxCBywTZ644S4o/W88un3Ry7jd0=';
+    params.genesisID = params.genesisID || 'testnet-v1.0';
+
+    const axferTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: sender,
+        to: algosdk.getApplicationAddress(APP_IDS.RETIREMENT_MANAGER),
+        assetIndex: APP_IDS.CXT_ASSET_ID,
+        amount: BigInt(amount),
+        suggestedParams: params,
+    });
+
     return callMethod(
         APP_IDS.RETIREMENT_MANAGER,
         sender,
         ABI_METHODS.RETIREMENT_MANAGER.retire_credits,
-        [amount]
+        [
+            { txn: axferTxn, sign: true }
+        ]
     );
 }
+
+export const retireCredits = retireCreditsRM;
 
 export async function getRetirementStats() {
     return simulateReadonly(
